@@ -1,5 +1,8 @@
 #include "include/Engine/Graphics/Window.h"
 
+#include "include/Engine/Game.h"
+#include "include/Engine/StandardOut.h"
+
 using namespace Moon::Graphics;
 
 //Constructor
@@ -10,7 +13,16 @@ Window::Window(std::string title, int width, int height):
 	//Initialize SDL video subsystem (if it isn't already)
 	if (!SDL_WasInit(SDL_INIT_VIDEO))
 	{
-		SDL_Init(SDL_INIT_VIDEO);
+		if (SDL_Init(SDL_INIT_VIDEO) == 0)
+		{
+			StandardOut::Print<std::string>(StandardOut::OutputType::Debug,
+				"Window::Window() - SDL video subsystem initialized"
+			);
+		}
+		else
+		{
+			throw std::runtime_error("Window::Window() - SDL video subsystem failed to initialize");
+		}
 	}
 
 	//Create the SDL window
@@ -22,10 +34,32 @@ Window::Window(std::string title, int width, int height):
 		height,
 		SDL_WINDOW_OPENGL
 	);
+	if (this->_window != NULL)
+	{
+		StandardOut::Append<std::string>(StandardOut::OutputType::Debug, "Window::Window() - SDL window created (");
+		StandardOut::Append<SDL_Window*>(StandardOut::OutputType::Debug, this->_window);
+		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, ")");
+	}
+	else
+	{
+		throw std::runtime_error("Window::Window() - SDL window creation failed");
+	}
 
 	//Initialize GLContext
 	this->_glContext = SDL_GL_CreateContext(this->_window);
-	glewInit();
+
+	//Initialize GLEW
+	if (glewInit() == GLEW_OK)
+	{
+		StandardOut::Print<std::string>(StandardOut::OutputType::Debug,
+			"Window::Window() - GLEW initialized"
+		);
+	}
+	else
+	{
+		throw std::runtime_error("Window::Window() - GLEW initialization failed");
+	}
+
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, true);
 
 }
@@ -82,6 +116,9 @@ void Window::SetHeight(int value)
 //Methods
 void Window::DestroyWindow()
 {
+	StandardOut::Append<std::string>(StandardOut::OutputType::Debug, "Window::Window() - SDL window destroyed (");
+	StandardOut::Append<SDL_Window*>(StandardOut::OutputType::Debug, this->_window);
+	StandardOut::Print<std::string>(StandardOut::OutputType::Debug, ")");
 	SDL_DestroyWindow(this->_window);
 	this->_window = nullptr;
 }

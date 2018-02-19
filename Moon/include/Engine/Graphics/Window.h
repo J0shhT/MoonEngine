@@ -2,6 +2,7 @@
 
 #include <SDL/SDL.h>
 #include <GL/glew.h>
+#include <GL/glut.h>
 #include <string>
 
 namespace Moon::Graphics {

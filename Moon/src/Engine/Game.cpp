@@ -1,5 +1,9 @@
 #include "include/Engine/Game.h"
 
+#include <assert.h>
+
+#include "include/Engine/StandardOut.h"
+
 using namespace Moon;
 
 //Constructor
@@ -7,13 +11,21 @@ Game::Game(Graphics::Window& targetWindow):
 	_isRunning(true),
 	_targetWindow(targetWindow)
 {
-
+	assert(Game::instance == nullptr); //Make sure we aren't making 2 instances (Game is a singleton)...
+	Game::instance = this;
 }
 
 //Deconstructor
 Game::~Game()
 {
 	
+}
+
+//Singleton Getter
+Game* Game::instance = nullptr;
+Game* Game::singleton()
+{
+	return Game::instance;
 }
 
 //Member Getters
@@ -54,6 +66,13 @@ void Game::Render()
 {
 	glClearDepth(1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glRotatef(1, 1.0, 0.0, 0.0);
+	glRotatef(1, 0.0, 1.0, 0.0);
+	glRotatef(1, 0.0, 0.0, 1.0);
+
+	glutWireTeapot(0.5);
+
 	SDL_GL_SwapWindow(this->GetTargetWindow().GetWindow());
 }
 void Game::Exit(std::string error)
@@ -62,18 +81,16 @@ void Game::Exit(std::string error)
 	if (!hasExited)
 	{
 		hasExited = true;
+
+		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Game::Exit()");
+
 		this->_isRunning = false;
 		this->GetTargetWindow().DestroyWindow();
 		SDL_Quit();
+
 		if (error != "")
 		{
-			std::cerr << "Game exited due to an encountered error: " << error << std::endl;
+			throw std::runtime_error(error);
 		}
-		else
-		{
-			std::cout << "Game exited successfully" << std::endl;
-		}
-		std::cout << "Enter any character to continue..." << std::endl;
-		getchar();
 	}
 }
