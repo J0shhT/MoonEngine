@@ -4,6 +4,9 @@
 #include <string>
 #include <sstream>
 
+#define print(t, v) Moon::StandardOut::Print<t>(Moon::StandardOut::OutputType::Message, v)
+#define append(t, v) Moon::StandardOut::Append<t>(Moon::StandardOut::OutputType::Message, v)
+
 namespace Moon::StandardOut {
 
 	enum OutputType {

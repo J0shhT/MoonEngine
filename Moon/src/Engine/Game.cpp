@@ -3,6 +3,7 @@
 #include <assert.h>
 
 #include "include/Engine/StandardOut.h"
+#include "include/Engine/Object/Object.h"
 
 using namespace Moon;
 
@@ -13,12 +14,18 @@ Game::Game(Graphics::Window& targetWindow):
 {
 	assert(Game::instance == nullptr); //Make sure we aren't making 2 instances (Game is a singleton)...
 	Game::instance = this;
+
+	//Create root game object that all other objects are children of
+	//TODO: change to type Object::Game
+	this->_rootObject = std::make_shared<Object::Object>();
+	this->_rootObject->SetName("game");
+	this->_rootObject->SetParent(nullptr);
 }
 
 //Deconstructor
 Game::~Game()
 {
-	
+	//todo: free all game objects
 }
 
 //Singleton Getter
@@ -37,11 +44,19 @@ Graphics::Window& Game::GetTargetWindow() const
 {
 	return this->_targetWindow;
 }
+std::shared_ptr<Object::Object> Game::GetRootObject() const
+{
+	return this->_rootObject;
+}
 
 //Member Setters
 
 
 //Methods
+int Game::GetGameObjectCount() const
+{
+	return this->_gameObjects.size();
+}
 void Game::ProcessEvents()
 {
 	SDL_Event e;
