@@ -1,10 +1,9 @@
 #include "include/Engine/Object/Object.h"
 
-#include <iostream>
-
 #include "include/Engine/GameHandler.h"
-#include "include/Engine/StandardOut.h"
+
 #include "include/Engine/Util.h"
+#include "include/Engine/StandardOut.h"
 
 using namespace Moon::Object;
 

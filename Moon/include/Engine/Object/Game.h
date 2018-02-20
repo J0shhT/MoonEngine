@@ -1,5 +1,7 @@
 #pragma once
 
+#include "include/Common.h"
+
 #include "Object.h"
 
 namespace Moon::Object {

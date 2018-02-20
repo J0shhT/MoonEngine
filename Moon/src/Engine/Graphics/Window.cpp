@@ -1,7 +1,12 @@
 #include "include/Engine/Graphics/Window.h"
 
 #include "include/Engine/GameHandler.h"
+
+#include "include/Engine/Util.h"
 #include "include/Engine/StandardOut.h"
+
+#include <GL/glew.h>
+#include <GL/glut.h>
 
 using namespace Moon::Graphics;
 

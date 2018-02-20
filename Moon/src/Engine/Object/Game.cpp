@@ -1,5 +1,6 @@
 #include "include/Engine/Object/Game.h"
 
+#include "include/Engine/Util.h"
 #include "include/Engine/StandardOut.h"
 
 using namespace Moon;

@@ -1,8 +1,7 @@
 #pragma once
 
-#include <iostream>
-#include <string>
-#include <sstream>
+#include "include/Common.h"
+
 #include <Windows.h>
 
 #define print(t, v) Moon::StandardOut::Print<t>(Moon::StandardOut::OutputType::Message, v)

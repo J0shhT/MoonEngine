@@ -1,11 +1,13 @@
 #pragma once
 
-#include "Graphics/Window.h"
-#include "Object/Object.h"
-#include <iostream>
-#include <map>
-#include <memory>
-#include <assert.h>
+#include "include/Common.h"
+
+#include "include/Engine/Graphics/Window.h"
+
+#include "include/Engine/Object/Object.h"
+
+#include <GL/glew.h>
+#include <GL/glut.h>
 
 namespace Moon {
 

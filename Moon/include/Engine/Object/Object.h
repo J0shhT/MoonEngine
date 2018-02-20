@@ -1,12 +1,11 @@
 #pragma once
 
+#include "include/Common.h"
+
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/random_generator.hpp>
-#include <string>
-#include <map>
-#include <memory>
 
 #define DEFINE_OBJECT_CONSTRUCTOR() \
 			this->_guid = boost::lexical_cast<std::string>(boost::uuids::random_generator()()) \

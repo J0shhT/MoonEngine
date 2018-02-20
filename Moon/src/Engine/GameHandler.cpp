@@ -1,8 +1,8 @@
 #include "include/Engine/GameHandler.h"
 
-#include <assert.h>
-
+#include "include/Engine/Util.h"
 #include "include/Engine/StandardOut.h"
+
 #include "include/Engine/Object/Object.h"
 #include "include/Engine/Object/Game.h"
 
