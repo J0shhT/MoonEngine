@@ -1,28 +1,29 @@
 #include "include/Engine/Object/Object.h"
 
 #include <iostream>
-#include <boost/lexical_cast.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/random_generator.hpp>
 
-#include "include/Engine/Game.h"
+#include "include/Engine/GameHandler.h"
 #include "include/Engine/StandardOut.h"
 #include "include/Engine/Util.h"
 
 using namespace Moon::Object;
 
+bool Object::_isInstanced = false;
+
 //Constructor
-Object::Object()
+Object::Object() : _objectType("Object"), _name("Object")
 {
 	DEFINE_OBJECT_CONSTRUCTOR();
-	std::cout << "Object::Object() - " << this << std::endl;
+	Moon::StandardOut::Append<std::string>(Moon::StandardOut::OutputType::Debug, "Object::Object() - ");
+	Moon::StandardOut::Print<Object*>(Moon::StandardOut::OutputType::Debug, this);
 }
+Object::Object(std::string objectType, std::string name): _objectType(objectType), _name(name) { }
 
 //Destructor
 Object::~Object()
 {
-	std::cout << "Object::~Object() - " << this << std::endl;
+	Moon::StandardOut::Append<std::string>(Moon::StandardOut::OutputType::Debug, "Object::~Object() - ");
+	Moon::StandardOut::Print<Object*>(Moon::StandardOut::OutputType::Debug, this);
 }
 
 //Member Getters
@@ -111,6 +112,7 @@ std::shared_ptr<Object> Object::FindFirstChild(std::string name) const
 }
 bool Object::IsA(std::string type) const
 {
+	//TODO: add inheritance checking?
 	return (this->GetType() == type);
 }
 void Object::_forceDelete()
@@ -126,18 +128,22 @@ void Object::_forceDelete()
 	}
 	this->_parent.reset(); //We no longer have a parent
 	//Remove from lookup table
-	if (Game::singleton()->_gameObjects.find(this->GetId()) != Game::singleton()->_gameObjects.end())
+	if (GameHandler::singleton()->_gameObjects.find(this->GetId()) != GameHandler::singleton()->_gameObjects.end())
 	{
-		Game::singleton()->_gameObjects.at(this->GetId()).reset(); //free ptr ownership
-		Game::singleton()->_gameObjects.erase(this->GetId()); //erase from lookup table
+		GameHandler::singleton()->_gameObjects.at(this->GetId()).reset(); //free ptr ownership
+		GameHandler::singleton()->_gameObjects.erase(this->GetId()); //erase from lookup table
 	}
 }
-void Object::Delete()
+bool Object::Delete()
 {
 	//Locking an object prevents deletion
 	if (!this->IsLocked())
 	{
 		this->_forceDelete();
+		return true;
+	}
+	else {
+		return false;
 	}
 }
 

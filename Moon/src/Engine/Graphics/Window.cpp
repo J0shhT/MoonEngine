@@ -1,6 +1,6 @@
 #include "include/Engine/Graphics/Window.h"
 
-#include "include/Engine/Game.h"
+#include "include/Engine/GameHandler.h"
 #include "include/Engine/StandardOut.h"
 
 using namespace Moon::Graphics;
@@ -36,9 +36,7 @@ Window::Window(std::string title, int width, int height):
 	);
 	if (this->_window != NULL)
 	{
-		StandardOut::Append<std::string>(StandardOut::OutputType::Debug, "Window::Window() - SDL window created (");
-		StandardOut::Append<SDL_Window*>(StandardOut::OutputType::Debug, this->_window);
-		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, ")");
+		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Window::Window() - SDL window created");
 	}
 	else
 	{
@@ -116,9 +114,7 @@ void Window::SetHeight(int value)
 //Methods
 void Window::DestroyWindow()
 {
-	StandardOut::Append<std::string>(StandardOut::OutputType::Debug, "Window::Window() - SDL window destroyed (");
-	StandardOut::Append<SDL_Window*>(StandardOut::OutputType::Debug, this->_window);
-	StandardOut::Print<std::string>(StandardOut::OutputType::Debug, ")");
+	StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Window::Window() - SDL window destroyed");
 	SDL_DestroyWindow(this->_window);
 	this->_window = nullptr;
 }

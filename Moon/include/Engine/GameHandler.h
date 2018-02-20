@@ -9,14 +9,14 @@
 
 namespace Moon {
 
-	class Game {
+	class GameHandler {
 
 		public:
-			Game(Graphics::Window&);
-			~Game() noexcept;
+			GameHandler(Graphics::Window&);
+			~GameHandler() noexcept;
 
 			//Singleton Getter
-			static Game* singleton();
+			static GameHandler* singleton();
 
 			//Member Getters
 			bool IsRunning() const;
@@ -50,7 +50,7 @@ namespace Moon {
 			friend class Object::Object;
 			
 		private:
-			static Game* instance;
+			static GameHandler* instance;
 			bool _isRunning;
 			Graphics::Window& _targetWindow;
 			std::shared_ptr<Object::Object> _rootObject;
@@ -59,12 +59,29 @@ namespace Moon {
 	};
 
 	//CreateGameObject Methods
-	template<typename T> std::shared_ptr<T> Game::CreateGameObject(std::string name, std::shared_ptr<Object::Object> parent)
+	template<typename T> std::shared_ptr<T> GameHandler::CreateGameObject(std::string name, std::shared_ptr<Object::Object> parent)
 	{
 		assert(parent != nullptr);
 
 		//Create object
-		std::shared_ptr<T> object = std::make_shared<T>();
+		std::shared_ptr<T> object;
+		try
+		{
+			object = std::make_shared<T>();
+		}
+		catch (const std::runtime_error& error)
+		{
+
+			Moon::StandardOut::Append<std::string>(Moon::StandardOut::OutputType::Error,
+				"GameHandler::CreateGameObject() - Error creating game object ["
+			);
+			Moon::StandardOut::Append<std::string>(Moon::StandardOut::OutputType::Error, typeid(T).name());
+			Moon::StandardOut::Append<std::string>(Moon::StandardOut::OutputType::Error, "] (");
+			Moon::StandardOut::Append<std::string>(Moon::StandardOut::OutputType::Error, error.what());
+			Moon::StandardOut::Print<std::string>(Moon::StandardOut::OutputType::Error, ")");
+			return nullptr;
+
+		}
 
 		if (name != "")
 		{
@@ -77,15 +94,15 @@ namespace Moon {
 
 		return object;
 	}
-	template<typename T> std::shared_ptr<T> Game::CreateGameObject(std::string name)
+	template<typename T> std::shared_ptr<T> GameHandler::CreateGameObject(std::string name)
 	{
 		return this->CreateGameObject<T>(name, this->GetRootObject());
 	}
-	template<typename T> std::shared_ptr<T> Game::CreateGameObject(std::shared_ptr<Object::Object> parent)
+	template<typename T> std::shared_ptr<T> GameHandler::CreateGameObject(std::shared_ptr<Object::Object> parent)
 	{
 		return this->CreateGameObject<T>("", parent);
 	}
-	template<typename T> std::shared_ptr<T> Game::CreateGameObject()
+	template<typename T> std::shared_ptr<T> GameHandler::CreateGameObject()
 	{
 		return this->CreateGameObject<T>("", this->GetRootObject());
 	}

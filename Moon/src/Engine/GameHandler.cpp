@@ -1,50 +1,50 @@
-#include "include/Engine/Game.h"
+#include "include/Engine/GameHandler.h"
 
 #include <assert.h>
 
 #include "include/Engine/StandardOut.h"
 #include "include/Engine/Object/Object.h"
+#include "include/Engine/Object/Game.h"
 
 using namespace Moon;
 
 //Constructor
-Game::Game(Graphics::Window& targetWindow):
+GameHandler::GameHandler(Graphics::Window& targetWindow):
 	_isRunning(true),
 	_targetWindow(targetWindow)
 {
-	assert(Game::instance == nullptr); //Make sure we aren't making 2 instances (Game is a singleton)...
-	Game::instance = this;
+	assert(GameHandler::instance == nullptr); //Make sure we aren't making 2 instances (Game is a singleton)...
+	GameHandler::instance = this;
 
 	//Create root game object that all other objects are children of
-	//TODO: change to type Object::Game
-	this->_rootObject = std::make_shared<Object::Object>();
-	this->_rootObject->SetName("game");
+	this->_rootObject = std::make_shared<Object::Game>();
 	this->_rootObject->SetParent(nullptr);
 }
 
 //Deconstructor
-Game::~Game()
+GameHandler::~GameHandler()
 {
 	//todo: free all game objects
 }
 
 //Singleton Getter
-Game* Game::instance = nullptr;
-Game* Game::singleton()
+GameHandler* GameHandler::instance = nullptr;
+GameHandler* GameHandler::singleton()
 {
-	return Game::instance;
+	assert(GameHandler::instance != nullptr); //Make sure we never call :singleton() before it's made...
+	return GameHandler::instance;
 }
 
 //Member Getters
-bool Game::IsRunning() const
+bool GameHandler::IsRunning() const
 {
 	return this->_isRunning;
 }
-Graphics::Window& Game::GetTargetWindow() const
+Graphics::Window& GameHandler::GetTargetWindow() const
 {
 	return this->_targetWindow;
 }
-std::shared_ptr<Object::Object> Game::GetRootObject() const
+std::shared_ptr<Object::Object> GameHandler::GetRootObject() const
 {
 	return this->_rootObject;
 }
@@ -53,11 +53,11 @@ std::shared_ptr<Object::Object> Game::GetRootObject() const
 
 
 //Methods
-int Game::GetGameObjectCount() const
+int GameHandler::GetGameObjectCount() const
 {
 	return this->_gameObjects.size();
 }
-void Game::ProcessEvents()
+void GameHandler::ProcessEvents()
 {
 	SDL_Event e;
 	while (SDL_PollEvent(&e))
@@ -73,11 +73,11 @@ void Game::ProcessEvents()
 		}
 	}
 }
-void Game::Update()
+void GameHandler::Update()
 {
 
 }
-void Game::Render()
+void GameHandler::Render()
 {
 	glClearDepth(1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -86,18 +86,18 @@ void Game::Render()
 	glRotatef(1, 0.0, 1.0, 0.0);
 	glRotatef(1, 0.0, 0.0, 1.0);
 
-	glutWireTeapot(0.5);
+	glutWireSphere(0.5, 10, 10);
 
 	SDL_GL_SwapWindow(this->GetTargetWindow().GetWindow());
 }
-void Game::Exit(std::string error)
+void GameHandler::Exit(std::string error)
 {
 	static bool hasExited;
 	if (!hasExited)
 	{
 		hasExited = true;
 
-		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Game::Exit()");
+		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "GameHandler::Exit()");
 
 		this->_isRunning = false;
 		this->GetTargetWindow().DestroyWindow();

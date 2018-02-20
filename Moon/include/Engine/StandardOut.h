@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <Windows.h>
 
 #define print(t, v) Moon::StandardOut::Print<t>(Moon::StandardOut::OutputType::Message, v)
 #define append(t, v) Moon::StandardOut::Append<t>(Moon::StandardOut::OutputType::Message, v)
@@ -22,7 +23,22 @@ namespace Moon::StandardOut {
 	template<typename T>
 	void Append(OutputType type, T value)
 	{
-		//todo: have special console text colors
+		HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+		switch (type)
+		{
+			case OutputType::Warning:
+				SetConsoleTextAttribute(consoleHandle, 14);
+				break;
+			case OutputType::Error:
+				SetConsoleTextAttribute(consoleHandle, 12);
+				break;
+			case OutputType::Debug:
+				SetConsoleTextAttribute(consoleHandle, 13);
+				break;
+			default:
+				SetConsoleTextAttribute(consoleHandle, 15);
+				break;
+		}
 		if (type == OutputType::Error)
 		{
 			std::cerr << value;
@@ -31,6 +47,7 @@ namespace Moon::StandardOut {
 		{
 			std::cout << value;
 		}
+		SetConsoleTextAttribute(consoleHandle, 15);
 	}
 
 	template<typename T>
