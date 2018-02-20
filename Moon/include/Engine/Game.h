@@ -5,6 +5,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <assert.h>
 
 namespace Moon {
 
@@ -22,17 +23,31 @@ namespace Moon {
 			Graphics::Window& GetTargetWindow() const;
 			std::shared_ptr<Object::Object> GetRootObject() const;
 
-
 			//Member Setters
 			
 
+			//CreateGameObject Methods
+			template<typename T> std::shared_ptr<T> CreateGameObject(
+				std::string name,
+				std::shared_ptr<Object::Object> parent
+			);
+			template<typename T> std::shared_ptr<T> CreateGameObject(
+				std::string name
+			);
+			template<typename T> std::shared_ptr<T> CreateGameObject(
+				std::shared_ptr<Object::Object> parent
+			);
+			template<typename T> std::shared_ptr<T> CreateGameObject();
+
 			//Methods
-			template<typename T> std::shared_ptr<T> CreateGameObject(std::shared_ptr<Object::Object>parent = nullptr);
 			int GetGameObjectCount() const;
 			void ProcessEvents();
 			void Update();
 			void Render();
 			void Exit(std::string error = "");
+
+			//Friends
+			friend class Object::Object;
 			
 		private:
 			static Game* instance;
@@ -43,27 +58,36 @@ namespace Moon {
 
 	};
 
-	template<typename T>
-	std::shared_ptr<T> Game::CreateGameObject(std::shared_ptr<Object::Object> parent)
+	//CreateGameObject Methods
+	template<typename T> std::shared_ptr<T> Game::CreateGameObject(std::string name, std::shared_ptr<Object::Object> parent)
 	{
+		assert(parent != nullptr);
+
 		//Create object
 		std::shared_ptr<T> object = std::make_shared<T>();
 
-		//Set parent
-		if (parent == nullptr)
+		if (name != "")
 		{
-			//All objects *must* have a parent, so use the root object
-			object->SetParent(this->GetRootObject());
+			object->SetName(name);
 		}
-		else
-		{
-			object->SetParent(parent);
-		}
+		object->SetParent(parent);
 
 		//Add object to object lookup table
 		this->_gameObjects[object->GetId()] = object;
 
 		return object;
+	}
+	template<typename T> std::shared_ptr<T> Game::CreateGameObject(std::string name)
+	{
+		return this->CreateGameObject<T>(name, this->GetRootObject());
+	}
+	template<typename T> std::shared_ptr<T> Game::CreateGameObject(std::shared_ptr<Object::Object> parent)
+	{
+		return this->CreateGameObject<T>("", parent);
+	}
+	template<typename T> std::shared_ptr<T> Game::CreateGameObject()
+	{
+		return this->CreateGameObject<T>("", this->GetRootObject());
 	}
 
 }

@@ -6,6 +6,8 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/random_generator.hpp>
 
+#include "include/Engine/Game.h"
+#include "include/Engine/StandardOut.h"
 #include "include/Engine/Util.h"
 
 using namespace Moon::Object;
@@ -13,14 +15,14 @@ using namespace Moon::Object;
 //Constructor
 Object::Object()
 {
-	DEFINE_OBJECT_CONSTRUCTOR()
-	std::cout << "Object created (" << this << ")" << std::endl;
+	DEFINE_OBJECT_CONSTRUCTOR();
+	std::cout << "Object::Object() - " << this << std::endl;
 }
 
 //Destructor
 Object::~Object()
 {
-	std::cout << "Object destroyed (" << this << ")" << std::endl;
+	std::cout << "Object::~Object() - " << this << std::endl;
 }
 
 //Member Getters
@@ -44,11 +46,15 @@ std::string Object::GetName() const
 {
 	return this->_name;
 }
+bool Object::IsLocked() const
+{
+	return this->_isLocked;
+}
 
 //Member Setters
 void Object::SetParent(std::shared_ptr<Object> parent)
 {
-	if (!Moon::Util::IsWeakPtrInitialized<Object>(this->_parent))
+	if (Moon::Util::IsWeakPtrInitialized<Object>(this->_parent))
 	{
 		//We are changing parents, remove us from the last parent's children
 		std::shared_ptr<Object> oldParent = this->_parent.lock();
@@ -67,6 +73,14 @@ void Object::SetName(std::string name)
 {
 	this->_name = name;
 }
+void Object::Lock()
+{
+	this->_isLocked = true;
+}
+void Object::Unlock()
+{
+	this->_isLocked = false;
+}
 
 
 //Methods
@@ -82,7 +96,7 @@ std::shared_ptr<Object> Object::FindChildById(std::string id) const
 	}
 	return nullptr;
 }
-std::shared_ptr<Object> Moon::Object::Object::FindFirstChild(std::string name) const
+std::shared_ptr<Object> Object::FindFirstChild(std::string name) const
 {
 	for (auto it = this->_children.begin(); it != this->_children.end(); ++it)
 	{
@@ -99,6 +113,33 @@ bool Object::IsA(std::string type) const
 {
 	return (this->GetType() == type);
 }
+void Object::_forceDelete()
+{
+	if (Moon::Util::IsWeakPtrInitialized<Object>(this->_parent))
+	{
+		//We are attatched to a parent, delete us from the parent's children
+		std::shared_ptr<Object> oldParent = this->_parent.lock();
+		if (oldParent != nullptr)
+		{
+			oldParent->RemoveChild(this->GetId());
+		}
+	}
+	this->_parent.reset(); //We no longer have a parent
+	//Remove from lookup table
+	if (Game::singleton()->_gameObjects.find(this->GetId()) != Game::singleton()->_gameObjects.end())
+	{
+		Game::singleton()->_gameObjects.at(this->GetId()).reset(); //free ptr ownership
+		Game::singleton()->_gameObjects.erase(this->GetId()); //erase from lookup table
+	}
+}
+void Object::Delete()
+{
+	//Locking an object prevents deletion
+	if (!this->IsLocked())
+	{
+		this->_forceDelete();
+	}
+}
 
 
 void Object::AddChild(std::shared_ptr<Object> child)
@@ -107,8 +148,9 @@ void Object::AddChild(std::shared_ptr<Object> child)
 }
 void Object::RemoveChild(std::string guid)
 {
-	if (this->_children.count(guid) <= 0)
+	if (this->_children.find(guid) != this->_children.end())
 	{
+		this->_children.at(guid).reset();
 		this->_children.erase(guid);
 	}
 }
