@@ -5,6 +5,8 @@
 #include "include/Engine/Graphics/Window.h"
 
 #include "include/Engine/Object/Object.h"
+#include "include/Engine/Object/Renderable.h"
+#include "include/Engine/Object/PVObject.h"
 
 #include <GL/glew.h>
 #include <GL/glut.h>
@@ -14,7 +16,7 @@ namespace Moon {
 	class GameHandler {
 
 		public:
-			GameHandler(Graphics::Window&);
+			GameHandler(Graphics::Window*);
 			~GameHandler() noexcept;
 
 			//Singleton Getter
@@ -22,11 +24,11 @@ namespace Moon {
 
 			//Member Getters
 			bool IsRunning() const;
-			Graphics::Window& GetTargetWindow() const;
+			Graphics::Window* GetTargetWindow() const;
 			std::shared_ptr<Object::Object> GetRootObject() const;
 
 			//Member Setters
-			
+
 
 			//CreateGameObject Methods
 			template<typename T> std::shared_ptr<T> CreateGameObject(
@@ -44,7 +46,7 @@ namespace Moon {
 			//Methods
 			int GetGameObjectCount() const;
 			void ProcessEvents();
-			void Update();
+			void StepPhysics(double frameDeltaSec);
 			void Render();
 			void Exit(std::string error = "");
 
@@ -54,9 +56,10 @@ namespace Moon {
 		private:
 			static GameHandler* instance;
 			bool _isRunning;
-			Graphics::Window& _targetWindow;
+			Graphics::Window* _targetWindow;
 			std::shared_ptr<Object::Object> _rootObject;
 			std::map<std::string, std::shared_ptr<Object::Object>> _gameObjects;
+			double _lastFrameDeltaSec;
 
 	};
 

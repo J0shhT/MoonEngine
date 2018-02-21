@@ -4,8 +4,8 @@
 
 #include <Windows.h>
 
-#define print(t, v) Moon::StandardOut::Print<t>(Moon::StandardOut::OutputType::Message, v)
-#define append(t, v) Moon::StandardOut::Append<t>(Moon::StandardOut::OutputType::Message, v)
+#define moonPrint(t, v) Moon::StandardOut::Print<t>(Moon::StandardOut::OutputType::Message, v)
+#define moonAppend(t, v) Moon::StandardOut::Append<t>(Moon::StandardOut::OutputType::Message, v)
 
 namespace Moon::StandardOut {
 

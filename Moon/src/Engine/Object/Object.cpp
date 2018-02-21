@@ -10,13 +10,12 @@ using namespace Moon::Object;
 bool Object::_isInstanced = false;
 
 //Constructor
-Object::Object() : _objectType("Object"), _name("Object")
+Object::Object()
 {
-	DEFINE_OBJECT_CONSTRUCTOR();
+	DEFINE_OBJECT_CONSTRUCTOR("Object");
 	Moon::StandardOut::Append<std::string>(Moon::StandardOut::OutputType::Debug, "Object::Object() - ");
 	Moon::StandardOut::Print<Object*>(Moon::StandardOut::OutputType::Debug, this);
 }
-Object::Object(std::string objectType, std::string name): _objectType(objectType), _name(name) { }
 
 //Destructor
 Object::~Object()
@@ -88,6 +87,11 @@ int Object::GetChildrenCount() const
 {
 	return this->_children.size();
 }
+double Object::GetAge() const
+{
+	auto now = std::chrono::high_resolution_clock::now();
+	return static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(now - this->_createdAt).count()) / 1000000.0;
+}
 std::shared_ptr<Object> Object::FindChildById(std::string id) const
 {
 	if (this->_children.count(id) <= 0)
@@ -108,11 +112,6 @@ std::shared_ptr<Object> Object::FindFirstChild(std::string name) const
 		}
 	}
 	return nullptr;
-}
-bool Object::IsA(std::string type) const
-{
-	//TODO: add inheritance checking?
-	return (this->GetType() == type);
 }
 void Object::_forceDelete()
 {

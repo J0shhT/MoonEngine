@@ -10,7 +10,7 @@ namespace Moon::Object {
 
 		public:
 			Game();
-			~Game();
+			virtual ~Game() noexcept;
 
 		protected:
 			

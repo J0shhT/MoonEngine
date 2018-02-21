@@ -3,13 +3,12 @@
 #include "include/Engine/Util.h"
 #include "include/Engine/StandardOut.h"
 
-#include "include/Engine/Object/Object.h"
 #include "include/Engine/Object/Game.h"
 
 using namespace Moon;
 
 //Constructor
-GameHandler::GameHandler(Graphics::Window& targetWindow):
+GameHandler::GameHandler(Graphics::Window* targetWindow):
 	_isRunning(true),
 	_targetWindow(targetWindow)
 {
@@ -40,7 +39,7 @@ bool GameHandler::IsRunning() const
 {
 	return this->_isRunning;
 }
-Graphics::Window& GameHandler::GetTargetWindow() const
+Graphics::Window* GameHandler::GetTargetWindow() const
 {
 	return this->_targetWindow;
 }
@@ -73,22 +72,55 @@ void GameHandler::ProcessEvents()
 		}
 	}
 }
-void GameHandler::Update()
+void GameHandler::StepPhysics(double frameDeltaSec)
 {
-
+	this->_lastFrameDeltaSec = frameDeltaSec;
+	//Step PVObjects
+	std::map<std::string, std::shared_ptr<Object::Object>>::iterator iter;
+	for (iter = this->_gameObjects.begin(); iter != this->_gameObjects.end(); ++iter)
+	{
+		std::shared_ptr<Object::Object> object = iter->second;
+		if (object->IsA<Object::PVObject>())
+		{
+			//std::cout << "GameHandler::StepPhysics() - Stepping " << object.get() << std::endl;
+			std::shared_ptr<Object::PVObject> physicsObject = std::dynamic_pointer_cast<Object::PVObject>(object);
+			object.reset();
+			if (!physicsObject->IsAnchored())
+			{
+				physicsObject->StepPhysics(frameDeltaSec);
+			}
+		}
+	}
 }
 void GameHandler::Render()
 {
 	glClearDepth(1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glRotatef(1, 1.0, 0.0, 0.0);
-	glRotatef(1, 0.0, 1.0, 0.0);
-	glRotatef(1, 0.0, 0.0, 1.0);
+	//Render game objects
+	std::map<std::string, std::shared_ptr<Object::Object>>::iterator iter;
+	for (iter = this->_gameObjects.begin(); iter != this->_gameObjects.end(); ++iter)
+	{
+		std::shared_ptr<Object::Object> object = iter->second;
+		if (object->IsA<Object::Renderable>())
+		{
+			//std::cout << "GameHandler::Render() - Rendering " << object.get() << std::endl;
+			std::shared_ptr<Object::Renderable> renderableObject = std::dynamic_pointer_cast<Object::Renderable>(object);
+			object.reset();
+			renderableObject->Render();
+		}
+	}
 
-	glutWireSphere(0.5, 10, 10);
+	// FrameDeltaSec debug text display //
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glRasterPos2f(0.0f, 0.8f);
+	std::string text = std::string("frameDeltaSec: ") + std::to_string(this->_lastFrameDeltaSec) + std::string("s");
+	for (auto iter = text.begin(); iter != text.end(); iter++) {
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *iter);
+	}
+	//////////////////////////////////////
 
-	SDL_GL_SwapWindow(this->GetTargetWindow().GetWindow());
+	SDL_GL_SwapWindow(this->GetTargetWindow()->GetWindow());
 }
 void GameHandler::Exit(std::string error)
 {
@@ -100,7 +132,8 @@ void GameHandler::Exit(std::string error)
 		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "GameHandler::Exit()");
 
 		this->_isRunning = false;
-		this->GetTargetWindow().DestroyWindow();
+		this->GetTargetWindow()->DestroyWindow();
+		delete this->GetTargetWindow();
 		SDL_Quit();
 
 		if (error != "")

@@ -6,9 +6,9 @@
 using namespace Moon;
 
 //Constructor
-Object::Game::Game() : Object("Game", "game")
+Object::Game::Game()
 {
-	DEFINE_OBJECT_CONSTRUCTOR();
+	DEFINE_OBJECT_CONSTRUCTOR("Game");
 	DEFINE_SINGLETON_OBJECT(Game);
 }
 
