@@ -13,3 +13,7 @@
 #include <chrono>
 #include <thread>
 #include <math.h>
+#include <fstream>
+
+#define DEBUG_DIR "C:/Users/joshr/Desktop/C++/Cpp/Moon/Debug/"
+#define RELEASE_DIR "C:/Users/joshr/Desktop/C++/Cpp/Moon/Release/"

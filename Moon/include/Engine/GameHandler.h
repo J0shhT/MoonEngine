@@ -26,9 +26,11 @@ namespace Moon {
 			bool IsRunning() const;
 			Graphics::Window* GetTargetWindow() const;
 			std::shared_ptr<Object::Object> GetRootObject() const;
+			GLuint GetShaderProgram();
+			GLuint GetVertexArrayObject();
 
 			//Member Setters
-
+			void SetShaderProgram(GLuint);
 
 			//CreateGameObject Methods
 			template<typename T> std::shared_ptr<T> CreateGameObject(
@@ -47,7 +49,7 @@ namespace Moon {
 			int GetGameObjectCount() const;
 			void ProcessEvents();
 			void StepPhysics(double frameDeltaSec);
-			void Render();
+			void Render(double currentTime);
 			void Exit(std::string error = "");
 
 			//Friends
@@ -60,6 +62,8 @@ namespace Moon {
 			std::shared_ptr<Object::Object> _rootObject;
 			std::map<std::string, std::shared_ptr<Object::Object>> _gameObjects;
 			double _lastFrameDeltaSec;
+			GLuint _shaderProgram;
+			GLuint _glVAO;
 
 	};
 
