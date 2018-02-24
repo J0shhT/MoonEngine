@@ -15,6 +15,9 @@ Window::Window(std::string title, int width, int height):
 	_title(title), _width(width), _height(height)
 {
 
+	//Initialize SDL GL attributes (must do before window creation)
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, true);
+
 	//Initialize SDL video subsystem (if it isn't already)
 	if (!SDL_WasInit(SDL_INIT_VIDEO))
 	{
@@ -63,14 +66,15 @@ Window::Window(std::string title, int width, int height):
 		throw std::runtime_error("Window::Window() - GLEW initialization failed");
 	}
 
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, true);
-
 }
 
 //Destructor
 Window::~Window()
 {
-	SDL_DestroyWindow(this->_window);
+	if (this->_window != nullptr)
+	{
+		this->DestroyWindow();
+	}
 }
 
 //Member Getters
@@ -119,7 +123,7 @@ void Window::SetHeight(int value)
 //Methods
 void Window::DestroyWindow()
 {
-	StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Window::Window() - SDL window destroyed");
+	StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Window::DestroyWindow() - SDL window destroyed");
 	SDL_DestroyWindow(this->_window);
 	this->_window = nullptr;
 }

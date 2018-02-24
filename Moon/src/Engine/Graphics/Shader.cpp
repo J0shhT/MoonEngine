@@ -4,88 +4,29 @@
 
 using namespace Moon;
 
-GLuint Graphics::LoadShaders(std::string vertexShaderPath, std::string fragmentShaderPath)
+GLuint Graphics::LinkShaders(GLuint vertexShader, GLuint fragmentShader, GLuint controlShader, GLuint evaluationShader, GLuint geometryShader)
 {
-	//Read files
-	///Vertex Shader
-	std::ifstream vertexShaderFile(vertexShaderPath);
-	if (!vertexShaderFile.good()) {
-		throw std::runtime_error("Graphics::LoadShaders() - Error reading file \"" + vertexShaderPath + "\"");
-	}
-	std::stringstream vertexShaderBuffer;
-	vertexShaderBuffer << vertexShaderFile.rdbuf();
-	std::string vertexShaderSourceStr = vertexShaderBuffer.str();
-	const GLchar* vertexShaderSource = (const GLchar*)vertexShaderSourceStr.c_str();
-	///Fragment Shader
-	std::ifstream fragmentShaderFile(fragmentShaderPath);
-	if (!fragmentShaderFile.good()) {
-		throw std::runtime_error("Graphics::LoadShaders() - Error reading file \"" + fragmentShaderPath + "\"");
-	}
-	std::stringstream fragmentShaderBuffer;
-	fragmentShaderBuffer << fragmentShaderFile.rdbuf();
-	std::string fragmentShaderSourceStr = fragmentShaderBuffer.str();
-	const GLchar* fragmentShaderSource = (const GLchar*)fragmentShaderSourceStr.c_str();
-
-	//Compile shaders
-	///Vertex Shader
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
-	GLint vertexShaderStatus;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vertexShaderStatus);
-	if (vertexShaderStatus == GL_TRUE)
-	{
-		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Graphics::LoadShaders() - Vertex shader compiled");
-	}
-	else
-	{
-		GLint maxLength;
-		glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &maxLength);
-		std::vector<GLchar> errorLog(maxLength);
-		glGetShaderInfoLog(vertexShader, maxLength, &maxLength, &errorLog[0]);
-		std::stringstream errorLogStream;
-		for (auto iter = errorLog.begin(); iter != errorLog.end(); iter++)
-		{
-			errorLogStream << *iter;
-		}
-		glDeleteShader(vertexShader);
-		throw std::runtime_error("Graphics::LoadShaders() - Failed to compile vertex shader: " + errorLogStream.str());
-	}
-	///Fragment Shader
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
-	GLint fragmentShaderStatus;
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fragmentShaderStatus);
-	if (fragmentShaderStatus == GL_TRUE)
-	{
-		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Graphics::LoadShaders() - Fragment shader compiled");
-	}
-	else
-	{
-		GLint maxLength;
-		glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &maxLength);
-		std::vector<GLchar> errorLog(maxLength);
-		glGetShaderInfoLog(fragmentShader, maxLength, &maxLength, &errorLog[0]);
-		std::stringstream errorLogStream;
-		for (auto iter = errorLog.begin(); iter != errorLog.end(); iter++)
-		{
-			errorLogStream << *iter;
-		}
-		glDeleteShader(fragmentShader);
-		throw std::runtime_error("Graphics::LoadShaders() - Failed to compile fragment shader: " + errorLogStream.str());
-	}
-
-	//Link shaders
 	GLuint program = glCreateProgram();
-	glAttachShader(program, vertexShader);
-	glAttachShader(program, fragmentShader);
+
+	if (vertexShader > 0)
+		glAttachShader(program, vertexShader);
+	if (controlShader > 0)
+		glAttachShader(program, controlShader);
+	if (evaluationShader > 0)
+		glAttachShader(program, evaluationShader);
+	if (geometryShader > 0)
+		glAttachShader(program, geometryShader);
+	if (fragmentShader > 0)
+		glAttachShader(program, fragmentShader);
+
 	glLinkProgram(program);
+
+	//Check errors
 	GLint linkStatus;
 	glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
 	if (linkStatus == GL_TRUE)
 	{
-		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Graphics::LoadShaders() - Shader program linked");
+		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Graphics::LinkShaders() - Linked shaders");
 	}
 	else
 	{
@@ -99,11 +40,229 @@ GLuint Graphics::LoadShaders(std::string vertexShaderPath, std::string fragmentS
 			errorLogStream << *iter;
 		}
 		glDeleteProgram(program);
-		throw std::runtime_error("Graphics::LoadShaders() - Failed to link shader program: " + errorLogStream.str());
+		throw std::runtime_error("Graphics::LinkShaders() - Failed to link shaders: " + errorLogStream.str());
 	}
 
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	if (vertexShader > 0)
+		glDeleteShader(vertexShader);
+	if (controlShader > 0)
+		glDeleteShader(controlShader);
+	if (evaluationShader > 0)
+		glDeleteShader(evaluationShader);
+	if (geometryShader > 0)
+		glDeleteShader(geometryShader);
+	if (fragmentShader > 0)
+		glDeleteShader(fragmentShader);
 
 	return program;
+}
+
+GLuint Graphics::LoadVertexShader(std::string path)
+{
+	//Read file
+	std::ifstream shaderFile(path);
+	if (!shaderFile.good()) {
+		throw std::runtime_error("Graphics::LoadVertexShader() - Error reading file \"" + path + "\"");
+	}
+	std::stringstream shaderBuffer;
+	shaderBuffer << shaderFile.rdbuf();
+	std::string shaderSourceStr = shaderBuffer.str();
+	const GLchar* shaderSource = (const GLchar*)shaderSourceStr.c_str();
+
+	//Compile shader
+	GLuint shader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(shader, 1, &shaderSource, NULL);
+	glCompileShader(shader);
+
+	//Check errors
+	GLint shaderStatus;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &shaderStatus);
+	if (shaderStatus == GL_TRUE)
+	{
+		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Graphics::LoadVertexShader() - Vertex shader compiled");
+	}
+	else
+	{
+		GLint maxLength;
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+		std::vector<GLchar> errorLog(maxLength);
+		glGetShaderInfoLog(shader, maxLength, &maxLength, &errorLog[0]);
+		std::stringstream errorLogStream;
+		for (auto iter = errorLog.begin(); iter != errorLog.end(); iter++)
+		{
+			errorLogStream << *iter;
+		}
+		glDeleteShader(shader);
+		throw std::runtime_error("Graphics::LoadVertexShader() - Failed to compile vertex shader: " + errorLogStream.str());
+	}
+
+	return shader;
+}
+
+GLuint Graphics::LoadFragmentShader(std::string path)
+{
+	//Read file
+	std::ifstream shaderFile(path);
+	if (!shaderFile.good()) {
+		throw std::runtime_error("Graphics::LoadFragmentShader() - Error reading file \"" + path + "\"");
+	}
+	std::stringstream shaderBuffer;
+	shaderBuffer << shaderFile.rdbuf();
+	std::string shaderSourceStr = shaderBuffer.str();
+	const GLchar* shaderSource = (const GLchar*)shaderSourceStr.c_str();
+
+	//Compile shader
+	GLuint shader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(shader, 1, &shaderSource, NULL);
+	glCompileShader(shader);
+
+	//Check errors
+	GLint shaderStatus;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &shaderStatus);
+	if (shaderStatus == GL_TRUE)
+	{
+		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Graphics::LoadFragmentShader() - Fragment shader compiled");
+	}
+	else
+	{
+		GLint maxLength;
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+		std::vector<GLchar> errorLog(maxLength);
+		glGetShaderInfoLog(shader, maxLength, &maxLength, &errorLog[0]);
+		std::stringstream errorLogStream;
+		for (auto iter = errorLog.begin(); iter != errorLog.end(); iter++)
+		{
+			errorLogStream << *iter;
+		}
+		glDeleteShader(shader);
+		throw std::runtime_error("Graphics::LoadFragmentShader() - Failed to compile fragment shader: " + errorLogStream.str());
+	}
+
+	return shader;
+}
+
+GLuint Graphics::LoadControlShader(std::string path)
+{
+	//Read file
+	std::ifstream shaderFile(path);
+	if (!shaderFile.good()) {
+		throw std::runtime_error("Graphics::LoadControlShader() - Error reading file \"" + path + "\"");
+	}
+	std::stringstream shaderBuffer;
+	shaderBuffer << shaderFile.rdbuf();
+	std::string shaderSourceStr = shaderBuffer.str();
+	const GLchar* shaderSource = (const GLchar*)shaderSourceStr.c_str();
+
+	//Compile shader
+	GLuint shader = glCreateShader(GL_TESS_CONTROL_SHADER);
+	glShaderSource(shader, 1, &shaderSource, NULL);
+	glCompileShader(shader);
+
+	//Check errors
+	GLint shaderStatus;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &shaderStatus);
+	if (shaderStatus == GL_TRUE)
+	{
+		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Graphics::LoadControlShader() - Tesselation control shader compiled");
+	}
+	else
+	{
+		GLint maxLength;
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+		std::vector<GLchar> errorLog(maxLength);
+		glGetShaderInfoLog(shader, maxLength, &maxLength, &errorLog[0]);
+		std::stringstream errorLogStream;
+		for (auto iter = errorLog.begin(); iter != errorLog.end(); iter++)
+		{
+			errorLogStream << *iter;
+		}
+		glDeleteShader(shader);
+		throw std::runtime_error("Graphics::LoadControlShader() - Failed to compile tesselation control shader: " + errorLogStream.str());
+	}
+
+	return shader;
+}
+
+GLuint Graphics::LoadEvaluationShader(std::string path)
+{
+	//Read file
+	std::ifstream shaderFile(path);
+	if (!shaderFile.good()) {
+		throw std::runtime_error("Graphics::LoadEvaluationShader() - Error reading file \"" + path + "\"");
+	}
+	std::stringstream shaderBuffer;
+	shaderBuffer << shaderFile.rdbuf();
+	std::string shaderSourceStr = shaderBuffer.str();
+	const GLchar* shaderSource = (const GLchar*)shaderSourceStr.c_str();
+
+	//Compile shader
+	GLuint shader = glCreateShader(GL_TESS_EVALUATION_SHADER);
+	glShaderSource(shader, 1, &shaderSource, NULL);
+	glCompileShader(shader);
+
+	//Check errors
+	GLint shaderStatus;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &shaderStatus);
+	if (shaderStatus == GL_TRUE)
+	{
+		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Graphics::LoadEvaluationShader() - Tesselation evaluation shader compiled");
+	}
+	else
+	{
+		GLint maxLength;
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+		std::vector<GLchar> errorLog(maxLength);
+		glGetShaderInfoLog(shader, maxLength, &maxLength, &errorLog[0]);
+		std::stringstream errorLogStream;
+		for (auto iter = errorLog.begin(); iter != errorLog.end(); iter++)
+		{
+			errorLogStream << *iter;
+		}
+		glDeleteShader(shader);
+		throw std::runtime_error("Graphics::LoadEvaluationShader() - Failed to compile tesselation evaluation shader: " + errorLogStream.str());
+	}
+
+	return shader;
+}
+
+GLuint Graphics::LoadGeometryShader(std::string path)
+{
+	//Read file
+	std::ifstream shaderFile(path);
+	if (!shaderFile.good()) {
+		throw std::runtime_error("Graphics::LoadGeometryShader() - Error reading file \"" + path + "\"");
+	}
+	std::stringstream shaderBuffer;
+	shaderBuffer << shaderFile.rdbuf();
+	std::string shaderSourceStr = shaderBuffer.str();
+	const GLchar* shaderSource = (const GLchar*)shaderSourceStr.c_str();
+
+	//Compile shader
+	GLuint shader = glCreateShader(GL_GEOMETRY_SHADER);
+	glShaderSource(shader, 1, &shaderSource, NULL);
+	glCompileShader(shader);
+
+	//Check errors
+	GLint shaderStatus;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &shaderStatus);
+	if (shaderStatus == GL_TRUE)
+	{
+		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Graphics::LoadGeometryShader() - Geometry shader compiled");
+	}
+	else
+	{
+		GLint maxLength;
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+		std::vector<GLchar> errorLog(maxLength);
+		glGetShaderInfoLog(shader, maxLength, &maxLength, &errorLog[0]);
+		std::stringstream errorLogStream;
+		for (auto iter = errorLog.begin(); iter != errorLog.end(); iter++)
+		{
+			errorLogStream << *iter;
+		}
+		glDeleteShader(shader);
+		throw std::runtime_error("Graphics::LoadGeometryShader() - Failed to compile geometry shader: " + errorLogStream.str());
+	}
+
+	return shader;
 }
