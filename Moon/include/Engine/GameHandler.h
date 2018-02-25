@@ -28,9 +28,13 @@ namespace Moon {
 			std::shared_ptr<Object::Object> GetRootObject() const;
 			GLuint GetShaderProgram();
 			GLuint GetVertexArrayObject();
+			glm::mat4 GetProjectionMatrix();
+			glm::mat4 GetCameraMatrix();
+			bool IsWireframe();
 
 			//Member Setters
 			void SetShaderProgram(GLuint);
+			void SetWireframe(bool);
 
 			//CreateGameObject Methods
 			template<typename T> std::shared_ptr<T> CreateGameObject(
@@ -64,6 +68,9 @@ namespace Moon {
 			double _lastFrameDeltaSec;
 			GLuint _shaderProgram;
 			GLuint _glVAO;
+			glm::mat4 _projectionMatrix;
+			glm::mat4 _cameraMatrix;
+			bool _wireframeMode;
 
 	};
 

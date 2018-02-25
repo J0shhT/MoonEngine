@@ -5,6 +5,7 @@
 
 #include "include/Engine/Object/Game.h"
 
+
 using namespace Moon;
 
 //Constructor
@@ -14,10 +15,6 @@ GameHandler::GameHandler(Graphics::Window* targetWindow):
 {
 	assert(GameHandler::instance == nullptr); //Make sure we aren't making 2 instances (Game is a singleton)...
 	GameHandler::instance = this;
-
-	glViewport(0, 0, targetWindow->GetWidth(), targetWindow->GetHeight());
-	glCreateVertexArrays(1, &this->_glVAO);
-	glBindVertexArray(this->_glVAO);
 
 	//Create root game object that all other objects are children of
 	this->_rootObject = std::make_shared<Object::Game>();
@@ -59,11 +56,27 @@ GLuint GameHandler::GetVertexArrayObject()
 {
 	return this->_glVAO;
 }
+glm::mat4 GameHandler::GetProjectionMatrix()
+{
+	return this->_projectionMatrix;
+}
+glm::mat4 GameHandler::GetCameraMatrix()
+{
+	return this->_cameraMatrix;
+}
+bool GameHandler::IsWireframe()
+{
+	return this->_wireframeMode;
+}
 
 //Member Setters
 void GameHandler::SetShaderProgram(GLuint program)
 {
 	this->_shaderProgram = program;
+}
+void GameHandler::SetWireframe(bool enabled)
+{
+	this->_wireframeMode = enabled;
 }
 
 //Methods
@@ -83,6 +96,12 @@ void GameHandler::ProcessEvents()
 			break;
 		case SDL_MOUSEMOTION:
 			//todo
+			break;
+		case SDL_KEYDOWN:
+			if (e.key.keysym.sym == SDLK_SPACE)
+			{
+				this->SetWireframe(!this->IsWireframe());
+			}
 			break;
 		}
 	}
@@ -109,11 +128,44 @@ void GameHandler::StepPhysics(double frameDeltaSec)
 }
 void GameHandler::Render(double currentTime)
 {
+	//Initialize render-related things that only need to be done once
+	static GLuint matrixId;
+	float windowWidth = (float)this->GetTargetWindow()->GetWidth();
+	float windowHeight = (float)this->GetTargetWindow()->GetHeight();
+	static bool hasInitialized = false;
+	if (!hasInitialized) {
+		glCreateVertexArrays(1, &this->_glVAO);
+		glBindVertexArray(this->_glVAO);
+		glViewport(0, 0, windowWidth, windowHeight);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluOrtho2D(-windowWidth / windowHeight, windowWidth / windowHeight, -1.0, 1.0);
+		glMatrixMode(GL_MODELVIEW);
+		matrixId = glGetUniformLocation(this->GetShaderProgram(), "worldViewMatrix");
+		this->_projectionMatrix = glm::ortho(0.0f, windowWidth, windowHeight, 0.0f);
+		hasInitialized = true;
+	}
+
 	static const GLfloat clearColor[] = { 0.25f, 0.25f, 0.25f, 1.0f };
 	glClearBufferfv(GL_COLOR, 0, clearColor);
 
+	//Shader Attribs
+	GLfloat timeAttrib = (GLfloat)currentTime;
+	glVertexAttrib1f(1, timeAttrib);
+
+	this->_cameraMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, 0.0f)); //todo
+
+	glUseProgram(this->GetShaderProgram());
+	if (this->IsWireframe())
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+	else
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+
 	//Render game objects
-	/*
 	std::map<std::string, std::shared_ptr<Object::Object>>::iterator iter;
 	for (iter = this->_gameObjects.begin(); iter != this->_gameObjects.end(); ++iter)
 	{
@@ -123,43 +175,25 @@ void GameHandler::Render(double currentTime)
 			//std::cout << "GameHandler::Render() - Rendering " << object.get() << std::endl;
 			std::shared_ptr<Object::Renderable> renderableObject = std::dynamic_pointer_cast<Object::Renderable>(object);
 			object.reset();
-			renderableObject->Render();
+			renderableObject->Render(matrixId);
 		}
 	}
-	*/
 
-	glUseProgram(this->GetShaderProgram());
+	glUseProgram(0);
 
-	//Attribs
-	GLfloat posAttrib[] = {
-		(float)sin(currentTime) * 0.5f,
-		(float)cos(currentTime) * 0.6f,
-		0.0f,
-		0.0f
-	};
-	GLfloat colorAttrib[] = {
-		0.5f * (float)sin(currentTime - (3.141592f / 2.0f)) + 0.5f,
-		0.5f * (float)cos(currentTime - (3.141592f / 2.0f)) + 0.5f,
-		0.0f,
-		0.0f
-	};
-	GLfloat timeAttrib = (GLfloat)currentTime;
-	glVertexAttrib4fv(0, posAttrib);
-	glVertexAttrib1f(1, timeAttrib);
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glDrawArrays(GL_PATCHES, 0, 6);
-
-	// FrameDeltaSec debug text display //
-	/*
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glRasterPos2f(0.0f, 0.8f);
-	std::string text = std::string("frameDeltaSec: ") + std::to_string(this->_lastFrameDeltaSec) + std::string("s");
-	for (auto iter = text.begin(); iter != text.end(); iter++) {
+	glLoadIdentity();
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glRasterPos2f(0.25f, 0.9f);
+	std::string frameDeltaSecText = std::string("frameDeltaSec: ") + std::to_string(this->_lastFrameDeltaSec) + std::string("s");
+	for (auto iter = frameDeltaSecText.begin(); iter != frameDeltaSecText.end(); iter++) {
 		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *iter);
 	}
-	//////////////////////////////////////
-	*/
+
+	glRasterPos2f(-0.97f, -0.97f);
+	std::string helpText = "Press spacebar to toggle wireframe";
+	for (auto iter = helpText.begin(); iter != helpText.end(); iter++) {
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *iter);
+	}
 
 	SDL_GL_SwapWindow(this->GetTargetWindow()->GetWindow());
 }

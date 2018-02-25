@@ -6,6 +6,8 @@
 
 #include <GL/glew.h>
 #include <GL/glut.h>
+#include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
 
 namespace Moon::Object {
 
@@ -22,11 +24,11 @@ namespace Moon::Object {
 
 
 		//Methods
-		virtual void Render() = 0;
+		virtual void Render(GLuint matrixId) = 0;
 
 	protected:
 		//Members
-
+		GLuint _vertexBufferId;
 
 	};
 

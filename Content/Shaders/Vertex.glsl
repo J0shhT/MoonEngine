@@ -2,36 +2,13 @@
 
 #define PI 3.14159265359
 
-layout (location = 0) in vec4 offset;
+layout (location = 0) in vec3 vertexPosition;
 layout (location = 1) in float currentTime;
+
+uniform mat4 worldViewMatrix;
 
 void main(void)
 {
-	/*
-	const vec4 vertices[] = vec4[](
-		vec4(0.25 - 0.1*sin(PI*currentTime), -0.25 - 0.1*cos(PI*currentTime), 0.5, 1.0),
-		vec4(-0.25 + 0.1*cos(PI*currentTime), -0.25 + 0.1*sin(PI*currentTime), 0.5, 1.0),
-		vec4(0.25 + 0.1*sin(PI*currentTime),  0.25 + 0.1*cos(PI*currentTime), 0.5, 1.0)
-	);
-	*/
-	/*
-	const vec4 vertices[] = vec4[](
-		vec4(0.25, -0.25, 0.5, 1.0),
-		vec4(-0.25, -0.25, 0.5, 1.0),
-		vec4(0.25,  0.25, 0.5, 1.0),
-		vec4(-0.25, 0.25, 0.5, 1.0),
-		vec4(-0.25, -0.25, 0.5, 1.0),
-		vec4(0.25,  0.25, 0.5, 1.0)
-	);
-	*/
-	const vec4 vertices[] = vec4[](
-		vec4(0.25 - 0.1*sin(PI*currentTime), -0.25 - 0.1*cos(PI*currentTime), 0.5, 1.0),
-		vec4(-0.25 - 0.1*cos(PI*currentTime), -0.25 + 0.1*sin(PI*currentTime), 0.5, 1.0),
-		vec4(0.25 + 0.1*sin(PI*currentTime), 0.25 + 0.1*cos(PI*currentTime), 0.5, 1.0),
-		vec4(-0.25, 0.25, 0.5, 1.0),
-		vec4(-0.25 - 0.1*cos(PI*currentTime), -0.25 + 0.1*sin(PI*currentTime), 0.5, 1.0),
-		vec4(0.25 + 0.1*sin(PI*currentTime), 0.25 + 0.1*cos(PI*currentTime), 0.5, 1.0)
-	);
-	gl_Position = vertices[gl_VertexID] + offset;
+	gl_Position = worldViewMatrix * vec4(vertexPosition, 1.0);
 }
 
