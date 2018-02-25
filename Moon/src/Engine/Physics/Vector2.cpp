@@ -115,16 +115,3 @@ void Vector2::SetY(double value)
 {
 	this->y = value;
 }
-
-
-//Util
-GLCoordinates2f Moon::Physics::ConvertToGLCoordinates(const Moon::Physics::Vector2& vec2)
-{
-	GLCoordinates2f coords;
-	Moon::Graphics::Window* window = Moon::GameHandler::singleton()->GetTargetWindow();
-	float windowWidth = window->GetWidth();
-	float windowHeight = window->GetHeight();
-	coords.x = (static_cast<float>(vec2.GetX()) / (windowWidth / 2.0f)) - 1.0f;
-	coords.y = (static_cast<float>(vec2.GetY()) / (windowHeight / 2.0f)) - 1.0f;
-	return coords;
-}

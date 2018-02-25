@@ -13,18 +13,21 @@ GameHandler::GameHandler(Graphics::Window* targetWindow):
 	_isRunning(true),
 	_targetWindow(targetWindow)
 {
-	assert(GameHandler::instance == nullptr); //Make sure we aren't making 2 instances (Game is a singleton)...
+	assert(GameHandler::instance == nullptr); //Make sure we aren't making 2 instances (GameHandler is a singleton)...
 	GameHandler::instance = this;
 
 	//Create root game object that all other objects are children of
 	this->_rootObject = std::make_shared<Object::Game>();
 	this->_rootObject->SetParent(nullptr);
+
+	//Create camera
+	this->_camera = this->CreateGameObject<Object::Camera>(this->GetRootObject());
 }
 
 //Deconstructor
 GameHandler::~GameHandler()
 {
-	//todo: free all game objects
+	
 }
 
 //Singleton Getter
@@ -48,23 +51,27 @@ std::shared_ptr<Object::Object> GameHandler::GetRootObject() const
 {
 	return this->_rootObject;
 }
-GLuint GameHandler::GetShaderProgram()
+std::shared_ptr<Object::Camera> GameHandler::GetCamera() const
+{
+	return this->_camera;
+}
+GLuint GameHandler::GetShaderProgram() const
 {
 	return this->_shaderProgram;
 }
-GLuint GameHandler::GetVertexArrayObject()
+GLuint GameHandler::GetVertexArrayObject() const
 {
 	return this->_glVAO;
 }
-glm::mat4 GameHandler::GetProjectionMatrix()
+glm::mat4 GameHandler::GetProjectionMatrix() const
 {
 	return this->_projectionMatrix;
 }
-glm::mat4 GameHandler::GetCameraMatrix()
+glm::mat4 GameHandler::GetCameraMatrix() const
 {
 	return this->_cameraMatrix;
 }
-bool GameHandler::IsWireframe()
+bool GameHandler::IsWireframe() const
 {
 	return this->_wireframeMode;
 }
@@ -91,18 +98,31 @@ void GameHandler::ProcessEvents()
 	{
 		switch (e.type)
 		{
-		case SDL_QUIT:
-			this->Exit();
-			break;
-		case SDL_MOUSEMOTION:
-			//todo
-			break;
-		case SDL_KEYDOWN:
-			if (e.key.keysym.sym == SDLK_SPACE)
-			{
-				this->SetWireframe(!this->IsWireframe());
-			}
-			break;
+			case SDL_QUIT:
+				this->Exit();
+				break;
+
+			case SDL_MOUSEMOTION:
+				//todo
+				break;
+
+			case SDL_KEYDOWN:
+				if (e.key.keysym.sym == SDLK_SPACE)
+				{
+					this->SetWireframe(!this->IsWireframe());
+				}
+				if (this->GetCamera()->GetCameraType() == Enum::CameraType::FreeCamera)
+				{
+					this->GetCamera()->KeyDownEvent(e.key.keysym.sym);
+				}
+				break;
+
+			case SDL_KEYUP:
+				if (this->GetCamera()->GetCameraType() == Enum::CameraType::FreeCamera)
+				{
+					this->GetCamera()->KeyUpEvent(e.key.keysym.sym);
+				}
+				break;
 		}
 	}
 }
@@ -125,6 +145,8 @@ void GameHandler::StepPhysics(double frameDeltaSec)
 			}
 		}
 	}
+	//Update Camera
+	this->GetCamera()->Update(frameDeltaSec);
 }
 void GameHandler::Render(double currentTime)
 {
@@ -153,7 +175,9 @@ void GameHandler::Render(double currentTime)
 	GLfloat timeAttrib = (GLfloat)currentTime;
 	glVertexAttrib1f(1, timeAttrib);
 
-	this->_cameraMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, 0.0f)); //todo
+	this->_cameraMatrix = glm::translate(glm::mat4(), glm::vec3(
+		-(float)this->GetCamera()->GetPosition().GetX(), (float)this->GetCamera()->GetPosition().GetY(), 0.0f
+	));
 
 	glUseProgram(this->GetShaderProgram());
 	if (this->IsWireframe())
@@ -180,9 +204,9 @@ void GameHandler::Render(double currentTime)
 	}
 
 	glUseProgram(0);
-
 	glLoadIdentity();
-	glColor3f(1.0f, 1.0f, 1.0f);
+
+	glColor3f(0.0f, 0.0f, 0.0f);
 	glRasterPos2f(0.25f, 0.9f);
 	std::string frameDeltaSecText = std::string("frameDeltaSec: ") + std::to_string(this->_lastFrameDeltaSec) + std::string("s");
 	for (auto iter = frameDeltaSecText.begin(); iter != frameDeltaSecText.end(); iter++) {
@@ -190,8 +214,14 @@ void GameHandler::Render(double currentTime)
 	}
 
 	glRasterPos2f(-0.97f, -0.97f);
-	std::string helpText = "Press spacebar to toggle wireframe";
-	for (auto iter = helpText.begin(); iter != helpText.end(); iter++) {
+	std::string wireframeText = "Press spacebar to toggle wireframe";
+	for (auto iter = wireframeText.begin(); iter != wireframeText.end(); iter++) {
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *iter);
+	}
+
+	glRasterPos2f(-0.97f, -0.92f);
+	std::string controlsText = "Use WASD to move the camera";
+	for (auto iter = controlsText.begin(); iter != controlsText.end(); iter++) {
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *iter);
 	}
 

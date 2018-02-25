@@ -50,11 +50,4 @@ namespace Moon::Physics
 
 	};
 
-	struct GLCoordinates2f {
-		float x;
-		float y;
-	};
-
-	GLCoordinates2f ConvertToGLCoordinates(const Moon::Physics::Vector2&);
-
 }

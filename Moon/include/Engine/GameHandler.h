@@ -7,6 +7,7 @@
 #include "include/Engine/Object/Object.h"
 #include "include/Engine/Object/Renderable.h"
 #include "include/Engine/Object/PVObject.h"
+#include "include/Engine/Object/Camera.h"
 
 #include <GL/glew.h>
 #include <GL/glut.h>
@@ -26,11 +27,12 @@ namespace Moon {
 			bool IsRunning() const;
 			Graphics::Window* GetTargetWindow() const;
 			std::shared_ptr<Object::Object> GetRootObject() const;
-			GLuint GetShaderProgram();
-			GLuint GetVertexArrayObject();
-			glm::mat4 GetProjectionMatrix();
-			glm::mat4 GetCameraMatrix();
-			bool IsWireframe();
+			std::shared_ptr<Object::Camera> GetCamera() const;
+			GLuint GetShaderProgram() const;
+			GLuint GetVertexArrayObject() const;
+			glm::mat4 GetProjectionMatrix() const;
+			glm::mat4 GetCameraMatrix() const;
+			bool IsWireframe() const;
 
 			//Member Setters
 			void SetShaderProgram(GLuint);
@@ -60,10 +62,12 @@ namespace Moon {
 			friend class Object::Object;
 			
 		private:
+			//Members
 			static GameHandler* instance;
 			bool _isRunning;
 			Graphics::Window* _targetWindow;
 			std::shared_ptr<Object::Object> _rootObject;
+			std::shared_ptr<Object::Camera> _camera;
 			std::map<std::string, std::shared_ptr<Object::Object>> _gameObjects;
 			double _lastFrameDeltaSec;
 			GLuint _shaderProgram;
