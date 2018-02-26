@@ -4,7 +4,8 @@
 
 #include "Renderable.h"
 #include "include/Engine/Physics/Vector2.h"
-//#include "include/Engine/Graphics/Color3.h"
+#include "include/Engine/Graphics/Color3.h"
+#include "include/Engine/Graphics/FileTexture.h"
 
 //#define DEFINE_DEFAULT_PHYSICS_STEPPER()
 
@@ -23,7 +24,9 @@ namespace Moon::Object {
 		double GetRotVelocity() const;
 		bool IsAnchored() const;
 		bool IsSolid() const;
-		//Moon::Graphics::Color3 GetColor() const;
+		Moon::Graphics::Color3 GetColor() const;
+		std::string GetTexture() const;
+		Moon::Graphics::FileTexture* GetTextureObject() const;
 
 		//Member Setters
 		void SetPosition(Moon::Physics::Vector2);
@@ -32,7 +35,8 @@ namespace Moon::Object {
 		void SetRotVelocity(double);
 		void SetAnchored(bool);
 		void SetSolid(bool);
-		//void SetColor(Moon::Graphics::Color3);
+		void SetColor(Moon::Graphics::Color3);
+		bool SetTexture(std::string filePath);
 
 		//Methods
 		virtual void StepPhysics(double frameDeltaSec) = 0;
@@ -45,7 +49,8 @@ namespace Moon::Object {
 		double _rotVelocity;
 		bool _isAnchored;
 		bool _isSolid;
-		//Moon::Graphics::Color3 _color;
+		Moon::Graphics::Color3 _color;
+		Moon::Graphics::FileTexture* _texture = nullptr;
 
 	};
 

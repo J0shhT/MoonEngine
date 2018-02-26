@@ -22,6 +22,7 @@ GameHandler::GameHandler(Graphics::Window* targetWindow):
 
 	//Create camera
 	this->_camera = this->CreateGameObject<Object::Camera>(this->GetRootObject());
+	this->_camera->SetName("CurrentCamera");
 }
 
 //Deconstructor
@@ -162,18 +163,18 @@ void GameHandler::Render(double currentTime)
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		gluOrtho2D(-windowWidth / windowHeight, windowWidth / windowHeight, -1.0, 1.0);
-		glMatrixMode(GL_MODELVIEW);
 		matrixId = glGetUniformLocation(this->GetShaderProgram(), "worldViewMatrix");
 		this->_projectionMatrix = glm::ortho(0.0f, windowWidth, windowHeight, 0.0f);
+		glMatrixMode(GL_MODELVIEW);
 		hasInitialized = true;
 	}
 
-	static const GLfloat clearColor[] = { 0.25f, 0.25f, 0.25f, 1.0f };
-	glClearBufferfv(GL_COLOR, 0, clearColor);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0.25f, 0.25f, 0.25f, 1.0f);
 
 	//Shader Attribs
-	GLfloat timeAttrib = (GLfloat)currentTime;
-	glVertexAttrib1f(1, timeAttrib);
+	//GLfloat timeAttrib = (GLfloat)currentTime;
+	//glVertexAttrib1f(3, timeAttrib);
 
 	this->_cameraMatrix = glm::translate(glm::mat4(), glm::vec3(
 		-(float)this->GetCamera()->GetPosition().GetX(), (float)this->GetCamera()->GetPosition().GetY(), 0.0f
@@ -199,7 +200,7 @@ void GameHandler::Render(double currentTime)
 			//std::cout << "GameHandler::Render() - Rendering " << object.get() << std::endl;
 			std::shared_ptr<Object::Renderable> renderableObject = std::dynamic_pointer_cast<Object::Renderable>(object);
 			object.reset();
-			renderableObject->Render(matrixId);
+			renderableObject->Render(this->_shaderProgram, matrixId);
 		}
 	}
 

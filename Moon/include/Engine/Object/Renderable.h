@@ -24,11 +24,13 @@ namespace Moon::Object {
 
 
 		//Methods
-		virtual void Render(GLuint matrixId) = 0;
+		virtual void Render(GLuint shaderId, GLuint matrixId) = 0;
 
 	protected:
 		//Members
 		GLuint _vertexBufferId;
+		GLuint _colorBufferId;
+		GLuint _textureBufferId;
 
 	};
 

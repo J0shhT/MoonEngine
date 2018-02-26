@@ -3,18 +3,19 @@
 #include "include/Engine/Util.h"
 #include "include/Engine/StandardOut.h"
 
-#include "include/Engine/GameHandler.h"
-
 using namespace Moon::Physics;
 
 //Constructors
-Vector2::Vector2() : x(0.0), y(0.0) {
+Vector2::Vector2() : x(0.0), y(0.0)
+{
 	
 }
-Vector2::Vector2(double x, double y) : x(x), y(y) { 
+Vector2::Vector2(double x, double y) : x(x), y(y)
+{ 
 	
 }
-Vector2::Vector2(double xy) : x(xy), y(xy) { 
+Vector2::Vector2(double xy) : x(xy), y(xy)
+{ 
 	
 }
 

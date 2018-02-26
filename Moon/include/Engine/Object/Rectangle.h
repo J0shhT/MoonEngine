@@ -19,7 +19,7 @@ namespace Moon::Object {
 		void SetSize(Moon::Physics::Vector2);
 
 		//Methods
-		void Render(GLuint matrixId);
+		void Render(GLuint shaderId, GLuint matrixId);
 		void StepPhysics(double frameDeltaSec);
 
 	protected:
