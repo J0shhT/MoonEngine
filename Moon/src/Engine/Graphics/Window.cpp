@@ -40,7 +40,7 @@ Window::Window(std::string title, int width, int height):
 		SDL_WINDOWPOS_CENTERED,
 		width,
 		height,
-		SDL_WINDOW_OPENGL
+		SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN
 	);
 	if (this->_window != NULL)
 	{
@@ -144,4 +144,15 @@ WindowPosition Window::GetPosition() const
 	WindowPosition position;
 	SDL_GetWindowPosition(this->_window, &position.x, &position.y);
 	return position;
+}
+void Window::DispalyWindow(bool isVisible) const
+{
+	if (isVisible)
+	{
+		SDL_ShowWindow(this->_window);
+	}
+	else
+	{
+		SDL_HideWindow(this->_window);
+	}
 }

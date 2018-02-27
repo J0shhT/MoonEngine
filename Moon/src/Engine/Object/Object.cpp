@@ -37,9 +37,9 @@ std::map<std::string, std::weak_ptr<Object>> Object::GetChildren() const
 {
 	return this->_children;
 }
-std::weak_ptr<Object> Object::GetParent() const
+std::shared_ptr<Object> Object::GetParent() const
 {
-	return this->_parent;
+	return this->_parent.lock();
 }
 std::string Object::GetName() const
 {
@@ -53,6 +53,7 @@ bool Object::IsLocked() const
 //Member Setters
 void Object::SetParent(std::shared_ptr<Object> parent)
 {
+	if (this->IsLocked()) { return; } //Locking prevents parent change
 	if (Moon::Util::IsWeakPtrInitialized<Object>(this->_parent))
 	{
 		//We are changing parents, remove us from the last parent's children

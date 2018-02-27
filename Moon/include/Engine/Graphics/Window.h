@@ -35,6 +35,7 @@ namespace Moon::Graphics {
 			int GetPositionX() const;
 			int GetPositionY() const;
 			WindowPosition GetPosition() const;
+			void DispalyWindow(bool) const;
 
 		private:
 			std::string _title;

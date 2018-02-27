@@ -104,10 +104,14 @@ void Object::Rectangle::Render(GLuint shaderId, GLuint matrixId)
 	glEnableVertexAttribArray(2);
 	static GLuint hasTextureId = glGetUniformLocation(shaderId, "hasTexture");
 	int hasTexture = 0;
-	if (this->_texture->IsLoaded())
+	Content textureContent = ContentProvider::singleton()->Get(this->_textureContentId);
+	if (textureContent.type != ContentType::NullContent)
 	{
-		glBindTexture(GL_TEXTURE_2D, this->_texture->GetTextureId());
-		hasTexture = 1;
+		if (!game->IsWireframe())
+		{
+			glBindTexture(GL_TEXTURE_2D, textureContent.gl_TextureId);
+			hasTexture = 1;
+		}
 	}
 	if (hasTextureId != -1)
 	{

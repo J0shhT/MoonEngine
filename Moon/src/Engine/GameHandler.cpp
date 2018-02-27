@@ -5,6 +5,8 @@
 
 #include "include/Engine/Object/Game.h"
 
+#include "include/Engine/ContentProvider.h"
+
 
 using namespace Moon;
 
@@ -16,19 +18,34 @@ GameHandler::GameHandler(Graphics::Window* targetWindow):
 	assert(GameHandler::instance == nullptr); //Make sure we aren't making 2 instances (GameHandler is a singleton)...
 	GameHandler::instance = this;
 
+	//Initialize ContentProvider
+	new ContentProvider();
+
 	//Create root game object that all other objects are children of
 	this->_rootObject = std::make_shared<Object::Game>();
 	this->_rootObject->SetParent(nullptr);
+	this->_rootObject->Lock();
+
+	//Create local player
+	this->_localPlayer = this->CreateGameObject<Object::Player>(this->GetRootObject());
+	this->_localPlayer->SetName("LocalPlayer");
+	this->_localPlayer->Lock();
+	this->_localPlayer->LoadCharacter();
 
 	//Create camera
 	this->_camera = this->CreateGameObject<Object::Camera>(this->GetRootObject());
 	this->_camera->SetName("CurrentCamera");
+	if (this->_localPlayer->GetCharacter() != nullptr) {
+		this->_camera->SetTarget(this->_localPlayer->GetCharacter());
+		this->_camera->SetCameraType(Enum::CameraType::Attach);
+	}
+	this->_camera->Lock();
 }
 
 //Deconstructor
 GameHandler::~GameHandler()
 {
-	
+	delete Moon::ContentProvider::singleton();
 }
 
 //Singleton Getter
@@ -55,6 +72,10 @@ std::shared_ptr<Object::Object> GameHandler::GetRootObject() const
 std::shared_ptr<Object::Camera> GameHandler::GetCamera() const
 {
 	return this->_camera;
+}
+std::shared_ptr<Object::Player> GameHandler::GetLocalPlayer() const
+{
+	return this->_localPlayer;
 }
 GLuint GameHandler::GetShaderProgram() const
 {
@@ -116,12 +137,26 @@ void GameHandler::ProcessEvents()
 				{
 					this->GetCamera()->KeyDownEvent(e.key.keysym.sym);
 				}
+				if (this->GetLocalPlayer() != nullptr)
+				{
+					if (this->GetLocalPlayer()->IsControllable())
+					{
+						this->GetLocalPlayer()->KeyDownEvent(e.key.keysym.sym);
+					}
+				}
 				break;
 
 			case SDL_KEYUP:
 				if (this->GetCamera()->GetCameraType() == Enum::CameraType::FreeCamera)
 				{
 					this->GetCamera()->KeyUpEvent(e.key.keysym.sym);
+				}
+				if (this->GetLocalPlayer() != nullptr)
+				{
+					if (this->GetLocalPlayer()->IsControllable())
+					{
+						this->GetLocalPlayer()->KeyUpEvent(e.key.keysym.sym);
+					}
 				}
 				break;
 		}
@@ -157,6 +192,8 @@ void GameHandler::Render(double currentTime)
 	float windowHeight = (float)this->GetTargetWindow()->GetHeight();
 	static bool hasInitialized = false;
 	if (!hasInitialized) {
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glCreateVertexArrays(1, &this->_glVAO);
 		glBindVertexArray(this->_glVAO);
 		glViewport(0, 0, windowWidth, windowHeight);
@@ -177,7 +214,9 @@ void GameHandler::Render(double currentTime)
 	//glVertexAttrib1f(3, timeAttrib);
 
 	this->_cameraMatrix = glm::translate(glm::mat4(), glm::vec3(
-		-(float)this->GetCamera()->GetPosition().GetX(), (float)this->GetCamera()->GetPosition().GetY(), 0.0f
+		-(float)this->GetCamera()->GetPosition().GetX() + windowWidth/2, 
+		-(float)this->GetCamera()->GetPosition().GetY() + windowHeight/2, 
+		0.0f
 	));
 
 	glUseProgram(this->GetShaderProgram());
@@ -191,37 +230,59 @@ void GameHandler::Render(double currentTime)
 	}
 
 	//Render game objects
-	std::map<std::string, std::shared_ptr<Object::Object>>::iterator iter;
-	for (iter = this->_gameObjects.begin(); iter != this->_gameObjects.end(); ++iter)
+	std::vector<std::weak_ptr<Object::Renderable>> renderAfterObjects;
+	for (auto iter = this->_gameObjects.begin(); iter != this->_gameObjects.end(); ++iter)
 	{
 		std::shared_ptr<Object::Object> object = iter->second;
 		if (object->IsA<Object::Renderable>())
 		{
-			//std::cout << "GameHandler::Render() - Rendering " << object.get() << std::endl;
 			std::shared_ptr<Object::Renderable> renderableObject = std::dynamic_pointer_cast<Object::Renderable>(object);
 			object.reset();
-			renderableObject->Render(this->_shaderProgram, matrixId);
+			if (renderableObject->GetParent()->IsA<Object::Player>())
+			{
+				//We render players after so they are on top
+				//todo: add zindex to avoid this hardcoding?
+				renderAfterObjects.emplace_back(renderableObject);
+			}
+			else
+			{
+				//std::cout << "GameHandler::Render() - Rendering " << object.get() << std::endl;
+				renderableObject->Render(this->_shaderProgram, matrixId);
+			}
 		}
+	}
+	//TODO: make this better...
+	for (auto iter = renderAfterObjects.begin(); iter != renderAfterObjects.end(); ++iter)
+	{
+		//std::cout << "GameHandler::Render() - Rendering " << object.get() << std::endl;
+		iter->lock()->Render(this->_shaderProgram, matrixId);
 	}
 
 	glUseProgram(0);
 	glLoadIdentity();
 
-	glColor3f(0.0f, 0.0f, 0.0f);
-	glRasterPos2f(0.25f, 0.9f);
-	std::string frameDeltaSecText = std::string("frameDeltaSec: ") + std::to_string(this->_lastFrameDeltaSec) + std::string("s");
+	/* DEBUG GUIS */
+	glColor3f(1.0f, 0.0f, 1.0f);
+	glRasterPos2f(-0.97, 0.87f);
+	std::string frameDeltaSecText = std::to_string(this->_lastFrameDeltaSec) + std::string("s");
 	for (auto iter = frameDeltaSecText.begin(); iter != frameDeltaSecText.end(); iter++) {
-		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *iter);
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *iter);
+	}
+	glRasterPos2f(-0.97, 0.93f);
+	std::string fpsCounterText = std::to_string(static_cast<int>(1.0/this->_lastFrameDeltaSec)) + std::string(" FPS");
+	for (auto iter = fpsCounterText.begin(); iter != fpsCounterText.end(); iter++) {
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *iter);
 	}
 
+	/* CONTROLS HELP */
+	glColor3f(0.0f, 0.0f, 0.0f);
 	glRasterPos2f(-0.97f, -0.97f);
 	std::string wireframeText = "Press spacebar to toggle wireframe";
 	for (auto iter = wireframeText.begin(); iter != wireframeText.end(); iter++) {
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *iter);
 	}
-
 	glRasterPos2f(-0.97f, -0.92f);
-	std::string controlsText = "Use WASD to move the camera";
+	std::string controlsText = "Use WASD to move your character";
 	for (auto iter = controlsText.begin(); iter != controlsText.end(); iter++) {
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *iter);
 	}

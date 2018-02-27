@@ -8,6 +8,7 @@
 #include "include/Engine/Object/Renderable.h"
 #include "include/Engine/Object/PVObject.h"
 #include "include/Engine/Object/Camera.h"
+#include "include/Engine/Object/Player.h"
 
 #include <GL/glew.h>
 #include <GL/glut.h>
@@ -28,6 +29,7 @@ namespace Moon {
 			Graphics::Window* GetTargetWindow() const;
 			std::shared_ptr<Object::Object> GetRootObject() const;
 			std::shared_ptr<Object::Camera> GetCamera() const;
+			std::shared_ptr<Object::Player> GetLocalPlayer() const;
 			GLuint GetShaderProgram() const;
 			GLuint GetVertexArrayObject() const;
 			glm::mat4 GetProjectionMatrix() const;
@@ -68,6 +70,7 @@ namespace Moon {
 			Graphics::Window* _targetWindow;
 			std::shared_ptr<Object::Object> _rootObject;
 			std::shared_ptr<Object::Camera> _camera;
+			std::shared_ptr<Object::Player> _localPlayer;
 			std::map<std::string, std::shared_ptr<Object::Object>> _gameObjects;
 			double _lastFrameDeltaSec;
 			GLuint _shaderProgram;

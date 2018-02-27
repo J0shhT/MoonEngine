@@ -31,7 +31,7 @@ namespace Moon::Object {
 			std::string GetType() const;
 			std::string GetId() const;
 			std::map<std::string, std::weak_ptr<Object>> GetChildren() const;
-			std::weak_ptr<Object> GetParent() const;
+			std::shared_ptr<Object> GetParent() const;
 			std::string GetName() const;
 			bool IsLocked() const;
 

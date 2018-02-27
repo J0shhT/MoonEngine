@@ -57,16 +57,6 @@ void Object::Camera::SetCameraType(Enum::CameraType type)
 }
 void Object::Camera::SetPosition(Physics::Vector2 position)
 {
-	if (this->GetCameraType() == Enum::CameraType::Attach)
-	{
-		StandardOut::Print<std::string>(StandardOut::OutputType::Warning, "Cannot set the position of a camera in Attach mode");
-		return;
-	}
-	if (this->GetCameraType() == Enum::CameraType::Follow)
-	{
-		StandardOut::Print<std::string>(StandardOut::OutputType::Warning, "Cannot set the position of a Camera in Follow mode");
-		return;
-	}
 	this->_position = position;
 }
 void Object::Camera::SetMovementSpeed(double value)
@@ -113,6 +103,12 @@ void Object::Camera::Update(double frameDeltaSec)
 			));
 		}
 	}
+	else if (this->GetCameraType() == Enum::CameraType::Attach)
+	{
+		if (Util::IsWeakPtrInitialized<PVObject>(this->_target)) {
+			this->SetPosition(this->GetTarget()->GetPosition());
+		}
+	}
 }
 Physics::Vector2 Object::Camera::GetVelocity() const
 {
@@ -126,7 +122,7 @@ void Object::Camera::KeyDownEvent(SDL_Keycode key)
 	if (this->GetCameraType() != Enum::CameraType::FreeCamera) { return; }
 	if (key == SDLK_w)
 	{
-		this->SetMovementDirectionY(1);
+		this->SetMovementDirectionY(-1);
 	}
 	else if (key == SDLK_a)
 	{
@@ -134,7 +130,7 @@ void Object::Camera::KeyDownEvent(SDL_Keycode key)
 	}
 	else if (key == SDLK_s)
 	{
-		this->SetMovementDirectionY(-1);
+		this->SetMovementDirectionY(1);
 	}
 	else if (key == SDLK_d)
 	{
@@ -146,7 +142,7 @@ void Object::Camera::KeyUpEvent(SDL_Keycode key)
 	if (this->GetCameraType() != Enum::CameraType::FreeCamera) { return; }
 	if (key == SDLK_w)
 	{
-		if (this->_movementDirectionY == 1)
+		if (this->_movementDirectionY == -1)
 			this->SetMovementDirectionY(0);
 	}
 	else if (key == SDLK_a)
@@ -156,7 +152,7 @@ void Object::Camera::KeyUpEvent(SDL_Keycode key)
 	}
 	else if (key == SDLK_s)
 	{
-		if (this->_movementDirectionY == -1)
+		if (this->_movementDirectionY == 1)
 			this->SetMovementDirectionY(0);
 	}
 	else if (key == SDLK_d)
