@@ -9,7 +9,7 @@ using namespace Moon;
 Object::Camera::Camera()
 {
 	DEFINE_OBJECT_CONSTRUCTOR("Camera");
-	this->SetMovementSpeed(200.0f);
+	this->SetMovementSpeed(300.0);
 	this->SetCameraType(Enum::CameraType::FreeCamera);
 }
 

@@ -1,3 +1,5 @@
+
+
 #include "include/Engine/GameHandler.h"
 
 #include "include/Engine/Util.h"
@@ -18,7 +20,7 @@ GameHandler::GameHandler(Graphics::Window* targetWindow):
 	assert(GameHandler::instance == nullptr); //Make sure we aren't making 2 instances (GameHandler is a singleton)...
 	GameHandler::instance = this;
 
-	//Initialize ContentProvider
+	//Initialize singletons
 	new ContentProvider();
 
 	//Create root game object that all other objects are children of
@@ -45,7 +47,7 @@ GameHandler::GameHandler(Graphics::Window* targetWindow):
 //Deconstructor
 GameHandler::~GameHandler()
 {
-	delete Moon::ContentProvider::singleton();
+	delete ContentProvider::singleton();
 }
 
 //Singleton Getter
@@ -76,6 +78,21 @@ std::shared_ptr<Object::Camera> GameHandler::GetCamera() const
 std::shared_ptr<Object::Player> GameHandler::GetLocalPlayer() const
 {
 	return this->_localPlayer;
+}
+std::vector<std::shared_ptr<Object::PVObject>> GameHandler::GetPhysicsObjects() const
+{
+	std::vector<std::shared_ptr<Object::PVObject>> objects;
+	for (auto iter = this->_gameObjects.begin(); iter != this->_gameObjects.end(); ++iter)
+	{
+		std::shared_ptr<Object::Object> object = iter->second;
+		if (object->IsA<Object::PVObject>())
+		{
+			std::shared_ptr<Object::PVObject> physicsObject = std::dynamic_pointer_cast<Object::PVObject>(object);
+			objects.emplace_back(physicsObject);
+			object.reset();
+		}
+	}
+	return objects;
 }
 GLuint GameHandler::GetShaderProgram() const
 {
@@ -165,21 +182,19 @@ void GameHandler::ProcessEvents()
 void GameHandler::StepPhysics(double frameDeltaSec)
 {
 	this->_lastFrameDeltaSec = frameDeltaSec;
-	//Step PVObjects
-	std::map<std::string, std::shared_ptr<Object::Object>>::iterator iter;
-	for (iter = this->_gameObjects.begin(); iter != this->_gameObjects.end(); ++iter)
+	auto physicsObjects = this->GetPhysicsObjects();
+	for (auto iter = physicsObjects.begin(); iter != physicsObjects.end(); ++iter)
 	{
-		std::shared_ptr<Object::Object> object = iter->second;
-		if (object->IsA<Object::PVObject>())
+		std::shared_ptr<Object::PVObject> object = (*iter);
+		if (!object->IsAnchored())
 		{
-			//std::cout << "GameHandler::StepPhysics() - Stepping " << object.get() << std::endl;
-			std::shared_ptr<Object::PVObject> physicsObject = std::dynamic_pointer_cast<Object::PVObject>(object);
-			object.reset();
-			if (!physicsObject->IsAnchored())
-			{
-				physicsObject->StepPhysics(frameDeltaSec);
-			}
+			//Check collisons
+			object->CheckCollisions(physicsObjects);
+
+			//Tick object
+			object->StepPhysics(frameDeltaSec);
 		}
+		object.reset();
 	}
 	//Update Camera
 	this->GetCamera()->Update(frameDeltaSec);
@@ -305,7 +320,6 @@ void GameHandler::Exit(std::string error)
 		glDeleteVertexArrays(1, &this->_glVAO);
 		glDeleteProgram(this->_shaderProgram);
 		SDL_Quit();
-
 
 		if (error != "")
 		{

@@ -20,9 +20,8 @@ namespace Moon::Object {
 
 		//Member Getters
 		Moon::Physics::Vector2 GetPosition() const;
-		double GetRotation() const;
+		Moon::Physics::Vector2 GetSize() const;
 		Moon::Physics::Vector2 GetVelocity() const;
-		double GetRotVelocity() const;
 		bool IsAnchored() const;
 		bool IsSolid() const;
 		Moon::Graphics::Color3 GetColor() const;
@@ -30,27 +29,32 @@ namespace Moon::Object {
 
 		//Member Setters
 		void SetPosition(Moon::Physics::Vector2);
-		void SetRotation(double);
+		void SetSize(Moon::Physics::Vector2);
 		void SetVelocity(Moon::Physics::Vector2);
-		void SetRotVelocity(double);
 		void SetAnchored(bool);
 		void SetSolid(bool);
 		void SetColor(Moon::Graphics::Color3);
 		bool SetTexture(std::string filePath);
 
 		//Methods
-		virtual void StepPhysics(double frameDeltaSec) = 0;
+		void CheckCollisions(std::vector<std::shared_ptr<PVObject>> physicsObjects);
+		void StepPhysics(double frameDeltaSec);
 
 	protected:
 		//Members
 		Moon::Physics::Vector2 _position;
-		double _rotation;
+		Moon::Physics::Vector2 _size;
 		Moon::Physics::Vector2 _velocity;
-		double _rotVelocity;
 		bool _isAnchored;
 		bool _isSolid;
 		Moon::Graphics::Color3 _color;
 		ContentId _textureContentId;
+
+		//Internal
+		bool _hasCollisionTop;
+		bool _hasCollisionBottom;
+		bool _hasCollisionLeft;
+		bool _hasCollisionRight;
 
 	};
 

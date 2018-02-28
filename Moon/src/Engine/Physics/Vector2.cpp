@@ -26,6 +26,26 @@ Vector2& Vector2::operator=(const Vector2& rhs)
 	this->y = rhs.y;
 	return *this;
 }
+Vector2 Vector2::operator+(const Vector2& other) const
+{
+	Vector2 result(this->GetX() + other.GetX(), this->GetY() + other.GetY());
+	return result;
+}
+Vector2 Vector2::operator-(const Vector2& other) const
+{
+	Vector2 result(this->GetX() - other.GetX(), this->GetY() - other.GetY());
+	return result;
+}
+Vector2 Vector2::operator*(const Vector2& other) const
+{
+	Vector2 result(this->GetX() * other.GetX(), this->GetY() * other.GetY());
+	return result;
+}
+Vector2 Vector2::operator/(const Vector2& other) const
+{
+	Vector2 result(this->GetX() / other.GetX(), this->GetY() / other.GetY());
+	return result;
+}
 Vector2& Vector2::operator+=(const Vector2& other)
 {
 	this->x = this->x + other.x;

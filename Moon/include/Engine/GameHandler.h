@@ -30,6 +30,7 @@ namespace Moon {
 			std::shared_ptr<Object::Object> GetRootObject() const;
 			std::shared_ptr<Object::Camera> GetCamera() const;
 			std::shared_ptr<Object::Player> GetLocalPlayer() const;
+			std::vector<std::shared_ptr<Object::PVObject>> GetPhysicsObjects() const;
 			GLuint GetShaderProgram() const;
 			GLuint GetVertexArrayObject() const;
 			glm::mat4 GetProjectionMatrix() const;

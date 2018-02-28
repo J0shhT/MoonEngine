@@ -13,18 +13,17 @@ namespace Moon::Object {
 		virtual ~Rectangle() noexcept;
 
 		//Member Getters
-		Moon::Physics::Vector2 GetSize() const;
+		
 
 		//Member Setters
-		void SetSize(Moon::Physics::Vector2);
+		
 
 		//Methods
 		void Render(GLuint shaderId, GLuint matrixId);
-		void StepPhysics(double frameDeltaSec);
 
 	protected:
 		//Members
-		Moon::Physics::Vector2 _size;
+		
 
 	};
 

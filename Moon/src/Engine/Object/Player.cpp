@@ -14,7 +14,7 @@ Object::Player::Player()
 {
 	DEFINE_OBJECT_CONSTRUCTOR("Player");
 	this->SetIsControllable(false);
-	this->SetWalkSpeed(125.0);
+	this->SetWalkSpeed(150.0);
 	this->_movementDirectionX = 0;
 	this->_movementDirectionY = 0;
 }

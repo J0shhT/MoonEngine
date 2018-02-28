@@ -21,6 +21,10 @@ namespace Moon::Physics
 
 			//Operators
 			Vector2& operator=(const Vector2&);
+			Vector2 operator+(const Vector2&) const;
+			Vector2 operator-(const Vector2&) const;
+			Vector2 operator*(const Vector2&) const;
+			Vector2 operator/(const Vector2&) const;
 			Vector2& operator+=(const Vector2&);
 			Vector2& operator-=(const Vector2&);
 			Vector2& operator*=(const Vector2&);
