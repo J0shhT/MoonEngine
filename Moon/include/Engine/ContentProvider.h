@@ -5,6 +5,7 @@
 #include <SOIL/SOIL.h>
 #include <GL/glew.h>
 #include <GL/glut.h>
+#include <fmod/fmod.hpp>
 
 namespace Moon {
 
@@ -12,7 +13,8 @@ namespace Moon {
 
 	enum ContentType {
 		NullContent,
-		GLFileTexture
+		GLFileTexture,
+		FMODFileSound
 	};
 
 	/*
@@ -25,10 +27,12 @@ namespace Moon {
 	struct Content {
 		ContentType type;
 		ContentId id;
+		std::string filePath; /// GLFileTexture, FMODFileSound
 		GLuint gl_TextureId; /// GLFileTexture
-		std::string filePath; /// GLFileTexture
 		int width; /// GLFileTexture
 		int height; /// GLFileTexture
+		FMOD::Sound* fmod_Sound; /// FMODFileSound
+		FMOD::Channel* fmod_Channel; /// FMODFileSound
 	};
 
 	class ContentProvider {
@@ -46,6 +50,7 @@ namespace Moon {
 			void FreeContent(ContentId);
 			Content Get(ContentId);
 			ContentId LoadFileTexture(std::string filePath);
+			ContentId LoadFileSound(std::string filePath);
 
 		private:
 			//Members

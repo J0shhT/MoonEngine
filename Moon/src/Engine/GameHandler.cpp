@@ -8,6 +8,7 @@
 #include "include/Engine/Object/Game.h"
 
 #include "include/Engine/ContentProvider.h"
+#include "include/Engine/SoundService.h"
 
 
 using namespace Moon;
@@ -22,6 +23,11 @@ GameHandler::GameHandler(Graphics::Window* targetWindow):
 
 	//Initialize singletons
 	new ContentProvider();
+	new SoundService();
+
+	//Load FMOD Sound System
+	FMOD::System_Create(&this->_soundSystem);
+	this->_soundSystem->init(32, FMOD_INIT_NORMAL, NULL);
 
 	//Create root game object that all other objects are children of
 	this->_rootObject = std::make_shared<Object::Game>();
@@ -48,6 +54,9 @@ GameHandler::GameHandler(Graphics::Window* targetWindow):
 GameHandler::~GameHandler()
 {
 	delete ContentProvider::singleton();
+	delete SoundService::singleton();
+	this->_soundSystem->close();
+	this->_soundSystem->release();
 }
 
 //Singleton Getter
@@ -66,6 +75,10 @@ bool GameHandler::IsRunning() const
 Graphics::Window* GameHandler::GetTargetWindow() const
 {
 	return this->_targetWindow;
+}
+FMOD::System* GameHandler::GetSoundSystem() const
+{
+	return this->_soundSystem;
 }
 std::shared_ptr<Object::Object> GameHandler::GetRootObject() const
 {

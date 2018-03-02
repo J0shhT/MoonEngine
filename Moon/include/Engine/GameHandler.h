@@ -12,6 +12,7 @@
 
 #include <GL/glew.h>
 #include <GL/glut.h>
+#include <fmod/fmod.hpp>
 
 namespace Moon {
 
@@ -27,6 +28,7 @@ namespace Moon {
 			//Member Getters
 			bool IsRunning() const;
 			Graphics::Window* GetTargetWindow() const;
+			FMOD::System* GetSoundSystem() const;
 			std::shared_ptr<Object::Object> GetRootObject() const;
 			std::shared_ptr<Object::Camera> GetCamera() const;
 			std::shared_ptr<Object::Player> GetLocalPlayer() const;
@@ -69,6 +71,7 @@ namespace Moon {
 			static GameHandler* instance;
 			bool _isRunning;
 			Graphics::Window* _targetWindow;
+			FMOD::System* _soundSystem;
 			std::shared_ptr<Object::Object> _rootObject;
 			std::shared_ptr<Object::Camera> _camera;
 			std::shared_ptr<Object::Player> _localPlayer;

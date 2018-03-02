@@ -3,6 +3,8 @@
 #include "include/Engine/Util.h"
 #include "include/Engine/StandardOut.h"
 
+#include "include/Engine/GameHandler.h"
+
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid.hpp>
@@ -66,6 +68,15 @@ void ContentProvider::FreeContent(ContentId id)
 				this->loadedAssetsCache.erase(content.filePath);
 			}
 			glDeleteTextures(1, &content.gl_TextureId);
+		}
+		else if (content.type == ContentType::FMODFileSound)
+		{
+			//Cleanup fmod sound
+			if (this->IsAssetCached(content.filePath))
+			{
+				this->loadedAssetsCache.erase(content.filePath);
+			}
+			content.fmod_Sound->release();
 		}
 		StandardOut::Print<std::string>(
 			StandardOut::OutputType::Debug,
@@ -160,7 +171,50 @@ ContentId ContentProvider::LoadFileTexture(std::string filePath)
 				"ContentProvider::LoadFileTexture() - Failed to load content \"" + filePathRaw + "\""
 			);
 			SOIL_free_image_data(image);
-			return std::string("");
 		}
 	}
+	return std::string("");
+}
+ContentId ContentProvider::LoadFileSound(std::string filePath)
+{
+	std::string filePathRaw = filePath;
+	#ifdef _DEBUG
+		filePath = DEBUG_DIR + filePath;
+	#endif
+	if (this->IsAssetCached(filePath))
+	{
+		//Don't load the same sound twice, use the cache!
+		return this->loadedAssetsCache.at(filePathRaw);
+	}
+	else
+	{
+		FMOD::System* fmod = GameHandler::singleton()->GetSoundSystem();
+		FMOD::Sound* sound;
+		FMOD::Channel* channel = 0;
+		FMOD_RESULT result = fmod->createSound(filePath.c_str(), FMOD_DEFAULT, 0, &sound);
+		if (result == FMOD_OK)
+		{
+			Content content;
+			content.type = ContentType::FMODFileSound;
+			content.id = boost::lexical_cast<std::string>(boost::uuids::random_generator()());
+			content.filePath = filePathRaw;
+			content.fmod_Sound = sound;
+			content.fmod_Channel = channel;
+			this->loadedContent.emplace(content.id, content);
+			this->loadedAssetsCache.emplace(content.filePath, content.id);
+			StandardOut::Print<std::string>(
+				StandardOut::OutputType::Debug,
+				"ContentProvider::LoadFileSound() - Loaded content \"" + filePathRaw + "\" (" + content.id + ")"
+				);
+			return content.id;
+		}
+		else
+		{
+			StandardOut::Print<std::string>(
+				StandardOut::OutputType::Error,
+				"ContentProvider::LoadFileSound() - Failed to load content \"" + filePathRaw + "\""
+			);
+		}
+	}
+	return std::string("");
 }
