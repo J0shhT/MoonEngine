@@ -6,6 +6,7 @@ Moon Engine is an open-source prototype game engine that uses Lua 5.3 as a scrip
 Moon Engine utilizes the following libraries currently:
 - [OpenGL](https://www.opengl.org/) (Open Graphics Library)
 - [SDL](https://www.libsdl.org/) (Simple DirectMedia Layer)
+- [FMOD](https://www.fmod.com/) (FMOD Sound System)
 - [GLUT](https://www.opengl.org/resources/libraries/glut/) (OpenGL Utility Toolkit)
 - [GLEW](http://glew.sourceforge.net/) (OpenGL Extension Wrangler)
 - [GLM](https://glm.g-truc.net/0.9.8/index.html) (OpenGL Mathematics)
