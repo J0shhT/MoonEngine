@@ -59,6 +59,9 @@ GLuint Graphics::LinkShaders(GLuint vertexShader, GLuint fragmentShader, GLuint 
 
 GLuint Graphics::LoadVertexShader(std::string path)
 {
+	#ifdef _DEBUG
+		path = DEBUG_DIR + path;
+	#endif
 	//Read file
 	std::ifstream shaderFile(path);
 	if (!shaderFile.good()) {
@@ -101,6 +104,9 @@ GLuint Graphics::LoadVertexShader(std::string path)
 
 GLuint Graphics::LoadFragmentShader(std::string path)
 {
+	#ifdef _DEBUG
+		path = DEBUG_DIR + path;
+	#endif
 	//Read file
 	std::ifstream shaderFile(path);
 	if (!shaderFile.good()) {
@@ -143,6 +149,9 @@ GLuint Graphics::LoadFragmentShader(std::string path)
 
 GLuint Graphics::LoadControlShader(std::string path)
 {
+	#ifdef _DEBUG
+		path = DEBUG_DIR + path;
+	#endif
 	//Read file
 	std::ifstream shaderFile(path);
 	if (!shaderFile.good()) {
@@ -185,6 +194,9 @@ GLuint Graphics::LoadControlShader(std::string path)
 
 GLuint Graphics::LoadEvaluationShader(std::string path)
 {
+	#ifdef _DEBUG
+		path = DEBUG_DIR + path;
+	#endif
 	//Read file
 	std::ifstream shaderFile(path);
 	if (!shaderFile.good()) {
@@ -227,6 +239,9 @@ GLuint Graphics::LoadEvaluationShader(std::string path)
 
 GLuint Graphics::LoadGeometryShader(std::string path)
 {
+	#ifdef _DEBUG
+		path = DEBUG_DIR + path;
+	#endif
 	//Read file
 	std::ifstream shaderFile(path);
 	if (!shaderFile.good()) {

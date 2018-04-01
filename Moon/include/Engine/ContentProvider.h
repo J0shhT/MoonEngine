@@ -14,7 +14,8 @@ namespace Moon {
 	enum ContentType {
 		NullContent,
 		GLFileTexture,
-		FMODFileSound
+		FMODFileSound,
+		LuaScriptFile
 	};
 
 	/*
@@ -27,12 +28,13 @@ namespace Moon {
 	struct Content {
 		ContentType type;
 		ContentId id;
-		std::string filePath; /// GLFileTexture, FMODFileSound
+		std::string filePath; /// GLFileTexture, FMODFileSound, LuaScriptFile
 		GLuint gl_TextureId; /// GLFileTexture
 		int width; /// GLFileTexture
 		int height; /// GLFileTexture
 		FMOD::Sound* fmod_Sound; /// FMODFileSound
 		FMOD::Channel* fmod_Channel; /// FMODFileSound
+		std::string script_Data; /// LuaScriptFile
 	};
 
 	class ContentProvider {
@@ -51,6 +53,7 @@ namespace Moon {
 			Content Get(ContentId);
 			ContentId LoadFileTexture(std::string filePath);
 			ContentId LoadFileSound(std::string filePath);
+			ContentId LoadFileScript(std::string filePath);
 
 		private:
 			//Members

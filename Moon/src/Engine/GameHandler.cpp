@@ -1,5 +1,3 @@
-
-
 #include "include/Engine/GameHandler.h"
 
 #include "include/Engine/Util.h"
@@ -9,6 +7,7 @@
 
 #include "include/Engine/ContentProvider.h"
 #include "include/Engine/SoundService.h"
+#include "include/Engine/Lua/LuaHandler.h"
 
 
 using namespace Moon;
@@ -24,6 +23,7 @@ GameHandler::GameHandler(Graphics::Window* targetWindow):
 	//Initialize singletons
 	new ContentProvider();
 	new SoundService();
+	new LuaHandler();
 
 	//Load FMOD Sound System
 	FMOD::System_Create(&this->_soundSystem);
@@ -55,6 +55,7 @@ GameHandler::~GameHandler()
 {
 	delete ContentProvider::singleton();
 	delete SoundService::singleton();
+	delete LuaHandler::singleton();
 	this->_soundSystem->close();
 	this->_soundSystem->release();
 }

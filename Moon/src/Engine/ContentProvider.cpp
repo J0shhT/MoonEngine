@@ -121,7 +121,7 @@ ContentId ContentProvider::LoadFileTexture(std::string filePath)
 	#ifdef _DEBUG
 		filePath = DEBUG_DIR + filePath;
 	#endif
-	if (this->IsAssetCached(filePath))
+	if (this->IsAssetCached(filePathRaw))
 	{
 		//Don't load the same texture twice, use the cache!
 		return this->loadedAssetsCache.at(filePathRaw);
@@ -181,7 +181,7 @@ ContentId ContentProvider::LoadFileSound(std::string filePath)
 	#ifdef _DEBUG
 		filePath = DEBUG_DIR + filePath;
 	#endif
-	if (this->IsAssetCached(filePath))
+	if (this->IsAssetCached(filePathRaw))
 	{
 		//Don't load the same sound twice, use the cache!
 		return this->loadedAssetsCache.at(filePathRaw);
@@ -213,6 +213,51 @@ ContentId ContentProvider::LoadFileSound(std::string filePath)
 			StandardOut::Print<std::string>(
 				StandardOut::OutputType::Error,
 				"ContentProvider::LoadFileSound() - Failed to load content \"" + filePathRaw + "\""
+			);
+		}
+	}
+	return std::string("");
+}
+
+ContentId ContentProvider::LoadFileScript(std::string filePath)
+{
+	std::string filePathRaw = filePath;
+	#ifdef _DEBUG
+		filePath = DEBUG_DIR + filePath;
+	#endif
+	if (this->IsAssetCached(filePathRaw))
+	{
+		//Don't load the same sound twice, use the cache!
+		return this->loadedAssetsCache.at(filePathRaw);
+	}
+	else
+	{
+		std::string line, code;
+		std::ifstream in(filePath);
+		if (in.good())
+		{
+			while (std::getline(in, line))
+			{
+				code += line + " ";
+			}
+			Content content;
+			content.type = ContentType::LuaScriptFile;
+			content.id = boost::lexical_cast<std::string>(boost::uuids::random_generator()());
+			content.filePath = filePathRaw;
+			content.script_Data = code;
+			this->loadedContent.emplace(content.id, content);
+			this->loadedAssetsCache.emplace(content.filePath, content.id);
+			StandardOut::Print<std::string>(
+				StandardOut::OutputType::Debug,
+				"ContentProvider::LoadFileScript() - Loaded content \"" + filePathRaw + "\" (" + content.id + ")"
+			);
+			return content.id;
+		} 
+		else
+		{
+			StandardOut::Print<std::string>(
+				StandardOut::OutputType::Error,
+				"ContentProvider::LoadFileScript() - Failed to load content \"" + filePathRaw + "\""
 			);
 		}
 	}
