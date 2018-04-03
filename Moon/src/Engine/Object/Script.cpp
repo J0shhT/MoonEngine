@@ -25,6 +25,10 @@ bool Object::Script::IsLoaded() const
 {
 	return this->_isLoaded;
 }
+std::string Object::Script::GetThreadId() const
+{
+	return this->_threadId;
+}
 
 //Member Setters
 
@@ -74,4 +78,28 @@ void Object::Script::Execute()
 			std::string("Script::Execute() - Script \"") + this->GetName() + std::string("\" is not loaded with a source")
 		);
 	}
+}
+
+
+
+std::shared_ptr<Object::Script> Util::GetScriptObject(Lua::LuaThread thread)
+{
+	auto scripts = GameHandler::singleton()->GetScriptObjects();
+	for (auto iter = scripts.begin(); iter != scripts.end(); ++iter)
+	{
+		if (thread.id == (*iter)->GetThreadId())
+		{
+			return (*iter);
+		}
+	}
+	return nullptr;
+}
+std::shared_ptr<Object::Script> Util::GetScriptObject(lua_State* state)
+{
+	Lua::LuaThread thread = LuaHandler::singleton()->GetThread(state);
+	if (thread.state != nullptr)
+	{
+		return Util::GetScriptObject(thread);
+	}
+	return nullptr;
 }

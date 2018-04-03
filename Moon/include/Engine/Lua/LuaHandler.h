@@ -1,3 +1,14 @@
+/*
+
+	Moon Engine - /Engine/Lua/LuaHandler.h
+
+	Updated: April 3rd, 2018
+	Contributers: @J0shhT
+
+	**SEE SOURCE (.cpp) FILE FOR DOCUMENTATION OF FUNCTIONS**
+
+*/
+
 #pragma once
 
 #include "include/Common.h"
@@ -11,7 +22,7 @@ namespace Moon {
 	namespace Lua {
 
 		/*
-			The Lua::Security enum describes a security context
+			The Lua::Security enum describes a security context.
 
 			Used by the Lua Engine in Moon Engine to tag certain scripts/code to allow them certain privelages
 			when it comes to what functions it can access in the Moon Engine Lua API.
@@ -27,6 +38,18 @@ namespace Moon {
 			MoonEngine
 		};
 
+		/*
+			The Lua::LuaThread struct is a container that is meant to extend lua_State for more detail.
+
+			Used by the Lua Engine in Moon Engine to tag certain scripts/code to allow them certain privelages
+			when it comes to what functions it can access in the Moon Engine Lua API.
+			Certain functions in our Lua API can only be accessed with certain security levels.
+
+			state = The lua_State associated with this thread (pointer)
+			securityContext = The security context for this thread (see Lua::Security enum)
+			signature = A unique hash created by the code that is designated for this thread (for trust checks)
+			id = A unique guid for this thread
+		*/
 		struct LuaThread {
 			lua_State* state;
 			Security securityContext;
@@ -36,6 +59,10 @@ namespace Moon {
 
 	}
 
+	/*
+		The LuaHandler class is an object that handles all things Lua in Moon Engine,
+		such as code execution, state & thread creation, thread management, etc
+	*/
 	class LuaHandler {
 
 		public:
@@ -55,7 +82,7 @@ namespace Moon {
 			void ExecuteString(Lua::LuaThread&, std::string& code);
 			void ExecuteString(std::string& code);
 
-			bool RequireSecurityContext(lua_State*, Lua::Security, std::string accessedItem) const;
+			bool RequireSecurityContext(Lua::LuaThread&, Lua::Security, std::string accessedItem) const;
 
 		private:
 			//Members
@@ -68,8 +95,20 @@ namespace Moon {
 			bool _verifySignature(std::string& code, Lua::LuaThread&);
 
 			//Static Methods
-			static int _luaPanic(lua_State*);
+			static int _error(lua_State*);
+			static int _panic(lua_State*);
 
 	};
+
+}
+
+/*
+	Utility functions for things regarding Lua, such as information fetching.
+*/
+
+namespace Moon::Util {
+
+	int GetLineNumber(lua_State*);
+	std::string GetStackTraceback(lua_State*);
 
 }

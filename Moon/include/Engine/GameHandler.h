@@ -9,6 +9,7 @@
 #include "include/Engine/Object/PVObject.h"
 #include "include/Engine/Object/Camera.h"
 #include "include/Engine/Object/Player.h"
+#include "include/Engine/Object/Script.h"
 
 #include <GL/glew.h>
 #include <GL/glut.h>
@@ -33,6 +34,7 @@ namespace Moon {
 			std::shared_ptr<Object::Camera> GetCamera() const;
 			std::shared_ptr<Object::Player> GetLocalPlayer() const;
 			std::vector<std::shared_ptr<Object::PVObject>> GetPhysicsObjects() const;
+			std::vector<std::shared_ptr<Object::Script>> GetScriptObjects() const;
 			GLuint GetShaderProgram() const;
 			GLuint GetVertexArrayObject() const;
 			glm::mat4 GetProjectionMatrix() const;

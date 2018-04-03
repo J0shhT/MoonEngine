@@ -108,6 +108,21 @@ std::vector<std::shared_ptr<Object::PVObject>> GameHandler::GetPhysicsObjects() 
 	}
 	return objects;
 }
+std::vector<std::shared_ptr<Object::Script>> Moon::GameHandler::GetScriptObjects() const
+{
+	std::vector<std::shared_ptr<Object::Script>> objects;
+	for (auto iter = this->_gameObjects.begin(); iter != this->_gameObjects.end(); ++iter)
+	{
+		std::shared_ptr<Object::Object> object = iter->second;
+		if (object->IsA<Object::Script>())
+		{
+			std::shared_ptr<Object::Script> scriptObject = std::dynamic_pointer_cast<Object::Script>(object);
+			objects.emplace_back(scriptObject);
+			object.reset();
+		}
+	}
+	return objects;
+}
 GLuint GameHandler::GetShaderProgram() const
 {
 	return this->_shaderProgram;

@@ -17,6 +17,7 @@ namespace Moon::Object {
 
 		//Member Getters
 		bool IsLoaded() const;
+		std::string GetThreadId() const;
 
 		//Member Setters
 
@@ -33,5 +34,12 @@ namespace Moon::Object {
 		std::string _threadId;
 
 	};
+
+}
+
+namespace Moon::Util {
+
+	std::shared_ptr<Object::Script> GetScriptObject(Lua::LuaThread);
+	std::shared_ptr<Object::Script> GetScriptObject(lua_State*);
 
 }

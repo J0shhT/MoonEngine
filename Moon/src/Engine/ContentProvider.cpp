@@ -225,19 +225,17 @@ ContentId ContentProvider::LoadFileScript(std::string filePath)
 	}
 	else
 	{
-		std::string line, code;
+		std::string line;
 		std::ifstream in(filePath);
 		if (in.good())
 		{
-			while (std::getline(in, line))
-			{
-				code += line + " ";
-			}
+			std::stringstream fileData;
+			while (in >> fileData.rdbuf());
 			Content content;
 			content.type = ContentType::LuaScriptFile;
 			content.id = boost::lexical_cast<std::string>(boost::uuids::random_generator()());
 			content.filePath = filePathRaw;
-			content.script_Data = code;
+			content.script_Data = fileData.str();
 			this->loadedContent.emplace(content.id, content);
 			this->loadedAssetsCache.emplace(content.filePath, content.id);
 			StandardOut::Print<std::string>(StandardOut::OutputType::Info,
