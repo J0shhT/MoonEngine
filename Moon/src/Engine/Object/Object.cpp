@@ -95,7 +95,7 @@ double Object::GetAge() const
 }
 std::shared_ptr<Object> Object::FindChildById(std::string id) const
 {
-	if (this->_children.count(id) <= 0)
+	if (this->_children.count(id) > 0)
 	{
 		return this->_children.at(id).lock();
 	}

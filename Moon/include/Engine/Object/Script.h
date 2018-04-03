@@ -16,19 +16,21 @@ namespace Moon::Object {
 		virtual ~Script() noexcept;
 
 		//Member Getters
-
+		bool IsLoaded() const;
 
 		//Member Setters
 
 
 		//Methods
-		
+		void LoadFromFile(std::string filePath);
+		void LoadFromString(std::string& code);
+		void Execute();
 
 	protected:
 		//Members
-		bool _disabled;
+		bool _isLoaded;
 		ContentId _scriptContentId;
-		lua_State* _thread;
+		std::string _threadId;
 
 	};
 

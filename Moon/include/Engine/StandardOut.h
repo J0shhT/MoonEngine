@@ -13,7 +13,8 @@ namespace Moon::StandardOut {
 		Message,
 		Warning,
 		Error,
-		Debug
+		Debug,
+		Info
 	};
 
 	template<typename T> void Append(OutputType, T value);
@@ -33,6 +34,9 @@ namespace Moon::StandardOut {
 				break;
 			case OutputType::Debug:
 				SetConsoleTextAttribute(consoleHandle, 13);
+				break;
+			case OutputType::Info:
+				SetConsoleTextAttribute(consoleHandle, 11);
 				break;
 			default:
 				SetConsoleTextAttribute(consoleHandle, 15);

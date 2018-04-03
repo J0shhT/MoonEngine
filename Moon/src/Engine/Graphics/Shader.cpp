@@ -26,7 +26,7 @@ GLuint Graphics::LinkShaders(GLuint vertexShader, GLuint fragmentShader, GLuint 
 	glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
 	if (linkStatus == GL_TRUE)
 	{
-		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Graphics::LinkShaders() - Linked shaders");
+		StandardOut::Print<std::string>(StandardOut::OutputType::Info, "Graphics::LinkShaders() - Linked shaders");
 	}
 	else
 	{
@@ -82,7 +82,7 @@ GLuint Graphics::LoadVertexShader(std::string path)
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &shaderStatus);
 	if (shaderStatus == GL_TRUE)
 	{
-		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Graphics::LoadVertexShader() - Vertex shader compiled");
+		StandardOut::Print<std::string>(StandardOut::OutputType::Info, "Graphics::LoadVertexShader() - Vertex shader compiled");
 	}
 	else
 	{
@@ -127,7 +127,7 @@ GLuint Graphics::LoadFragmentShader(std::string path)
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &shaderStatus);
 	if (shaderStatus == GL_TRUE)
 	{
-		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Graphics::LoadFragmentShader() - Fragment shader compiled");
+		StandardOut::Print<std::string>(StandardOut::OutputType::Info, "Graphics::LoadFragmentShader() - Fragment shader compiled");
 	}
 	else
 	{
@@ -172,7 +172,7 @@ GLuint Graphics::LoadControlShader(std::string path)
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &shaderStatus);
 	if (shaderStatus == GL_TRUE)
 	{
-		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Graphics::LoadControlShader() - Tesselation control shader compiled");
+		StandardOut::Print<std::string>(StandardOut::OutputType::Info, "Graphics::LoadControlShader() - Tesselation control shader compiled");
 	}
 	else
 	{
@@ -217,7 +217,7 @@ GLuint Graphics::LoadEvaluationShader(std::string path)
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &shaderStatus);
 	if (shaderStatus == GL_TRUE)
 	{
-		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Graphics::LoadEvaluationShader() - Tesselation evaluation shader compiled");
+		StandardOut::Print<std::string>(StandardOut::OutputType::Info, "Graphics::LoadEvaluationShader() - Tesselation evaluation shader compiled");
 	}
 	else
 	{
@@ -262,7 +262,7 @@ GLuint Graphics::LoadGeometryShader(std::string path)
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &shaderStatus);
 	if (shaderStatus == GL_TRUE)
 	{
-		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Graphics::LoadGeometryShader() - Geometry shader compiled");
+		StandardOut::Print<std::string>(StandardOut::OutputType::Info, "Graphics::LoadGeometryShader() - Geometry shader compiled");
 	}
 	else
 	{

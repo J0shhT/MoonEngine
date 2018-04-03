@@ -325,7 +325,7 @@ void GameHandler::Exit(std::string error)
 	{
 		hasExited = true;
 
-		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "GameHandler::Exit()");
+		StandardOut::Print<std::string>(StandardOut::OutputType::Info, "GameHandler::Exit() - Exiting");
 
 		this->_isRunning = false;
 		this->GetTargetWindow()->DestroyWindow();

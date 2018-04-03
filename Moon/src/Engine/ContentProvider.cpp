@@ -78,15 +78,13 @@ void ContentProvider::FreeContent(ContentId id)
 			}
 			content.fmod_Sound->release();
 		}
-		StandardOut::Print<std::string>(
-			StandardOut::OutputType::Debug,
+		StandardOut::Print<std::string>(StandardOut::OutputType::Info,
 			"ContentProvider::FreeContent() - Content unloaded (" + id + ")"
 		);
 	}
 	else
 	{
-		StandardOut::Print<std::string>(
-			StandardOut::OutputType::Warning,
+		StandardOut::Print<std::string>(StandardOut::OutputType::Error,
 			"ContentProvider::FreeContent() - Failed to unload content of id \"" + id + "\" (does not exist)"
 		);
 	}
@@ -106,8 +104,7 @@ Content ContentProvider::Get(ContentId id)
 	}
 	else
 	{
-		StandardOut::Print<std::string>(
-			StandardOut::OutputType::Error, 
+		StandardOut::Print<std::string>(StandardOut::OutputType::Error, 
 			"ContentProvider::Get() - Failed to fetch content of id \"" + id + "\"  (does not exist)" 
 		);
 		Content nullContent;
@@ -158,16 +155,14 @@ ContentId ContentProvider::LoadFileTexture(std::string filePath)
 			content.gl_TextureId = textureId;
 			this->loadedContent.emplace(content.id, content);
 			this->loadedAssetsCache.emplace(content.filePath, content.id);
-			StandardOut::Print<std::string>(
-				StandardOut::OutputType::Debug,
+			StandardOut::Print<std::string>(StandardOut::OutputType::Info,
 				"ContentProvider::LoadFileTexture() - Loaded content \"" + filePathRaw + "\" (" + content.id + ")"
 			);
 			return content.id;
 		}
 		else
 		{
-			StandardOut::Print<std::string>(
-				StandardOut::OutputType::Error,
+			StandardOut::Print<std::string>(StandardOut::OutputType::Error,
 				"ContentProvider::LoadFileTexture() - Failed to load content \"" + filePathRaw + "\""
 			);
 			SOIL_free_image_data(image);
@@ -202,16 +197,14 @@ ContentId ContentProvider::LoadFileSound(std::string filePath)
 			content.fmod_Channel = channel;
 			this->loadedContent.emplace(content.id, content);
 			this->loadedAssetsCache.emplace(content.filePath, content.id);
-			StandardOut::Print<std::string>(
-				StandardOut::OutputType::Debug,
+			StandardOut::Print<std::string>(StandardOut::OutputType::Info,
 				"ContentProvider::LoadFileSound() - Loaded content \"" + filePathRaw + "\" (" + content.id + ")"
-				);
+			);
 			return content.id;
 		}
 		else
 		{
-			StandardOut::Print<std::string>(
-				StandardOut::OutputType::Error,
+			StandardOut::Print<std::string>(StandardOut::OutputType::Error,
 				"ContentProvider::LoadFileSound() - Failed to load content \"" + filePathRaw + "\""
 			);
 		}
@@ -247,16 +240,14 @@ ContentId ContentProvider::LoadFileScript(std::string filePath)
 			content.script_Data = code;
 			this->loadedContent.emplace(content.id, content);
 			this->loadedAssetsCache.emplace(content.filePath, content.id);
-			StandardOut::Print<std::string>(
-				StandardOut::OutputType::Debug,
+			StandardOut::Print<std::string>(StandardOut::OutputType::Info,
 				"ContentProvider::LoadFileScript() - Loaded content \"" + filePathRaw + "\" (" + content.id + ")"
 			);
 			return content.id;
 		} 
 		else
 		{
-			StandardOut::Print<std::string>(
-				StandardOut::OutputType::Error,
+			StandardOut::Print<std::string>(StandardOut::OutputType::Error,
 				"ContentProvider::LoadFileScript() - Failed to load content \"" + filePathRaw + "\""
 			);
 		}

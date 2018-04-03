@@ -48,6 +48,7 @@ namespace Moon {
 			//Methods
 			int GetThreadCount() const;
 			Lua::LuaThread GetThread(lua_State*) const;
+			Lua::LuaThread GetThread(std::string threadId) const;
 			Lua::LuaThread CreateThread(std::string& code, Lua::Security);
 			void DeleteThread(Lua::LuaThread&);
 
@@ -65,6 +66,9 @@ namespace Moon {
 			lua_State* _createLuaState() const;
 			size_t _generateSignature(std::string& code);
 			bool _verifySignature(std::string& code, Lua::LuaThread&);
+
+			//Static Methods
+			static int _luaPanic(lua_State*);
 
 	};
 

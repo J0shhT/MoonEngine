@@ -1,1 +1,1 @@
-print("TestGame.lua loaded")
+print("TestGame.lua loaded, hello from " .. _VERSION .. "!")

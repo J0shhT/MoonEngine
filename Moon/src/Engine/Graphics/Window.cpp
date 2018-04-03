@@ -23,7 +23,7 @@ Window::Window(std::string title, int width, int height):
 	{
 		if (SDL_Init(SDL_INIT_VIDEO) == 0)
 		{
-			StandardOut::Print<std::string>(StandardOut::OutputType::Debug,
+			StandardOut::Print<std::string>(StandardOut::OutputType::Info,
 				"Window::Window() - SDL video subsystem initialized"
 			);
 		}
@@ -44,7 +44,7 @@ Window::Window(std::string title, int width, int height):
 	);
 	if (this->_window != NULL)
 	{
-		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Window::Window() - SDL window created");
+		StandardOut::Print<std::string>(StandardOut::OutputType::Info, "Window::Window() - SDL window created");
 	}
 	else
 	{
@@ -57,7 +57,7 @@ Window::Window(std::string title, int width, int height):
 	//Initialize GLEW
 	if (glewInit() == GLEW_OK)
 	{
-		StandardOut::Print<std::string>(StandardOut::OutputType::Debug,
+		StandardOut::Print<std::string>(StandardOut::OutputType::Info,
 			"Window::Window() - GLEW initialized"
 		);
 	}
@@ -123,7 +123,7 @@ void Window::SetHeight(int value)
 //Methods
 void Window::DestroyWindow()
 {
-	StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "Window::DestroyWindow() - SDL window destroyed");
+	StandardOut::Print<std::string>(StandardOut::OutputType::Info, "Window::DestroyWindow() - SDL window destroyed");
 	SDL_DestroyWindow(this->_window);
 	this->_window = nullptr;
 }
