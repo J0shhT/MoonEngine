@@ -2,7 +2,7 @@
 
 	Moon Engine - /Engine/Lua/MoonBaseExtension.cpp
 
-	Updated: April 3rd, 2018
+	Updated: April 4th, 2018
 	Contributers: @J0shhT
 
 	**SEE HEADER (.h) FILE FOR DOCUMENTATION OF INTERFACES**
@@ -14,27 +14,26 @@
 #include "include/Engine/Util.h"
 #include "include/Engine/StandardOut.h"
 
-#include <stdio.h>
-#include <time.h>
-
 using namespace Moon;
 
 /*
 	OpenLibrary
 
-	Registers all MoonBaseLibrary functions into the specified lua_State
+	Registers all MoonBaseExtension functions into the specified lua_State
 */
 void Lua::MoonBaseExtension::OpenLibrary(lua_State* state)
 {
 	lua_register(state, "print", Lua::MoonBaseExtension::print);
 	lua_register(state, "warn", Lua::MoonBaseExtension::warn);
-	lua_register(state, "tick", Lua::MoonBaseExtension::tick);
+	lua_register(state, "identity", Lua::MoonBaseExtension::identity);
+	lua_register(state, "version", Lua::MoonBaseExtension::version);
 }
 
 /*
 	**Lua Documentation**
 
 	void print(string message, ...)
+
 	Prints the specified message(s) to the output
 */
 int Lua::MoonBaseExtension::print(lua_State *state)
@@ -63,6 +62,7 @@ int Lua::MoonBaseExtension::print(lua_State *state)
 	**Lua Documentation**
 
 	void warn(string message, ...)
+
 	Prints the specified message(s) to the output as a warning
 */
 int Lua::MoonBaseExtension::warn(lua_State *state)
@@ -90,13 +90,40 @@ int Lua::MoonBaseExtension::warn(lua_State *state)
 /*
 	**Lua Documentation**
 
-	int tick()
-	Returns the number of seconds elapsed since the Unix Epoch (January 1st, 1970)
+	string identity()
+
+	Returns the security context identity of the current thread.
 */
-int Lua::MoonBaseExtension::tick(lua_State *state)
+int Lua::MoonBaseExtension::identity(lua_State *state)
 {
-	time_t time = ::time(nullptr);
-	long int seconds = static_cast<long int>(time);
-	lua_pushinteger(state, seconds);
+	//TODO: change return type to an enum once we add enums to the Lua API
+	Lua::LuaThread thread = LuaHandler::singleton()->GetThread(state);
+	switch (thread.securityContext) {
+		case Lua::Security::GameScript:
+			lua_pushstring(state, "GameScript");
+			break;
+		case Lua::Security::CommandLine:
+			lua_pushstring(state, "CommandLine");
+			break;
+		case Lua::Security::MoonEngine:
+			lua_pushstring(state, "MoonEngine");
+			break;
+		default:
+			lua_pushnil(state);
+			break;
+	}
+	return 1;
+}
+
+/*
+	**Lua Documentation**
+
+	string version()
+
+	Returns the current version of Moon Engine.
+*/
+int Lua::MoonBaseExtension::version(lua_State *state)
+{
+	lua_pushstring(state, MOON_VERSION);
 	return 1;
 }

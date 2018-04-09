@@ -2,7 +2,7 @@
 
 	Moon Engine - /Engine/Lua/LuaHandler.cpp
 
-	Updated: April 3rd, 2018
+	Updated: April 5th, 2018
 	Contributers: @J0shhT
 
 	**SEE HEADER (.h) FILE FOR DOCUMENTATION OF INTERFACES**
@@ -17,6 +17,8 @@
 #include "include/Engine/Object/Script.h"
 
 #include "include/Engine/Lua/MoonBaseExtension.h"
+#include "include/Engine/Lua/MoonDebugLibrary.h"
+#include "include/Engine/Lua/MoonTimeLibrary.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/functional/hash.hpp>
@@ -83,6 +85,7 @@ Lua::LuaThread LuaHandler::GetThread(lua_State* state) const
 	thread.state = nullptr;
 	thread.signature = 0;
 	thread.securityContext = Lua::Security::GameScript;
+	thread.id = "";
 	return thread;
 }
 
@@ -102,6 +105,7 @@ Lua::LuaThread LuaHandler::GetThread(std::string threadId) const
 	thread.state = nullptr;
 	thread.signature = 0;
 	thread.securityContext = Lua::Security::GameScript;
+	thread.id = "";
 	return thread;
 }
 
@@ -156,6 +160,8 @@ void LuaHandler::ExecuteString(Lua::LuaThread& thread, std::string& code)
 			if (hasErrors != 0) {
 				lua_pop(thread.state, 1);
 			}
+			//We are done with this thread, script execution is finished
+			this->DeleteThread(thread);
 		}
 		else
 		{
@@ -235,12 +241,19 @@ lua_State* LuaHandler::_createLuaState() const
 
 	///Load Lua 5.3 API
 	luaopen_base(state);
+	lua_pop(state, 1);
 	luaopen_coroutine(state);
+	lua_pop(state, 1);
 	luaopen_table(state);
+	lua_pop(state, 1);
 	luaopen_string(state);
+	lua_pop(state, 1);
 	luaopen_utf8(state);
+	lua_pop(state, 1);
 	luaopen_bit32(state);
+	lua_pop(state, 1);
 	luaopen_math(state);
+	lua_pop(state, 1);
 
 	///These libraries are dangerous and ruin sandbox, do not load them
 	//luaopen_io(state);
@@ -256,12 +269,14 @@ lua_State* LuaHandler::_createLuaState() const
 	lua_pushnil(state);
 	lua_setglobal(state, "loadfile");
 
+	///Load Moon Engine Lua API
+	Lua::MoonBaseExtension::OpenLibrary(state);
+	Lua::MoonDebugLibrary::OpenLibrary(state);
+	Lua::MoonTimeLibrary::OpenLibrary(state);
+
 	///Create new globals table
 	lua_newtable(state);
 	lua_setglobal(state, "_G");
-
-	///Load Moon Engine Lua API
-	Lua::MoonBaseExtension::OpenLibrary(state);
 
 	return state;
 }
@@ -377,7 +392,7 @@ int LuaHandler::_panic(lua_State* state)
 int Util::GetLineNumber(lua_State* state)
 {
 	lua_Debug ar;
-	if (lua_getstack(state, 2, &ar))
+	if (lua_getstack(state, 1, &ar))
 	{
 		lua_getinfo(state, "nSl", &ar);
 		if (ar.currentline != -1)
@@ -426,4 +441,25 @@ std::string Util::GetStackTraceback(lua_State* state)
 	}
 	stringStream << std::endl << "Stack End";
 	return stringStream.str();
+}
+
+/*
+	DumpStack
+
+	For debugging purposes, prints the entire lua stack of the specified lua_State
+*/
+void Util::DumpStack(lua_State* state)
+{
+	const int size = lua_gettop(state);
+	StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "// Lua Stack Debug //");
+	if (size < 1) {
+		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "(stack is empty)");
+	}
+	for (int i = 1; i <= size; i++)
+	{
+		std::ostringstream stackInfo;
+		stackInfo << "[" << i << "] <" << lua_typename(state, lua_type(state, i)) << "> ";
+		StandardOut::Print<std::string>(StandardOut::OutputType::Debug, stackInfo.str());
+	}
+	StandardOut::Print<std::string>(StandardOut::OutputType::Debug, "/////////////////////");
 }

@@ -15,5 +15,6 @@
 #include <math.h>
 #include <fstream>
 
+#define MOON_VERSION "Alpha 1.06"
 #define DEBUG_DIR "C:/Users/joshr/Desktop/C++/Cpp/Moon/Debug/"
 #define RELEASE_DIR "C:/Users/joshr/Desktop/C++/Cpp/Moon/Release/"

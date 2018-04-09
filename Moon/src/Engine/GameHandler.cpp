@@ -8,6 +8,7 @@
 #include "include/Engine/ContentProvider.h"
 #include "include/Engine/SoundService.h"
 #include "include/Engine/Lua/LuaHandler.h"
+#include "include/Engine/Timer.h"
 
 
 using namespace Moon;
@@ -24,6 +25,7 @@ GameHandler::GameHandler(Graphics::Window* targetWindow):
 	new ContentProvider();
 	new SoundService();
 	new LuaHandler();
+	new Timer();
 
 	//Load FMOD Sound System
 	FMOD::System_Create(&this->_soundSystem);
@@ -56,6 +58,7 @@ GameHandler::~GameHandler()
 	delete ContentProvider::singleton();
 	delete SoundService::singleton();
 	delete LuaHandler::singleton();
+	delete Timer::singleton();
 	this->_soundSystem->close();
 	this->_soundSystem->release();
 }
@@ -142,6 +145,10 @@ glm::mat4 GameHandler::GetCameraMatrix() const
 bool GameHandler::IsWireframe() const
 {
 	return this->_wireframeMode;
+}
+double GameHandler::GetFrameDelta() const
+{
+	return this->_lastFrameDeltaSec;
 }
 
 //Member Setters

@@ -2,7 +2,7 @@
 
 	Moon Engine - /Engine/Lua/MoonBaseExtension.h
 
-	Updated: April 3rd, 2018
+	Updated: April 4th, 2018
 	Contributers: @J0shhT
 
 	**SEE SOURCE (.cpp) FILE FOR DOCUMENTATION OF FUNCTIONS**
@@ -28,7 +28,8 @@ namespace Moon::Lua {
 		//Lua API Functions
 		int print(lua_State*);
 		int warn(lua_State*);
-		int tick(lua_State*);
+		int identity(lua_State*);
+		int version(lua_State*);
 
 	}
 

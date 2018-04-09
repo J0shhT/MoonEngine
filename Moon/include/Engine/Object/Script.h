@@ -1,3 +1,14 @@
+/*
+
+	Moon Engine - /Engine/Object/Script.h
+
+	Updated: April 5th, 2018
+	Contributers: @J0shhT
+
+	**SEE SOURCE (.cpp) FILE FOR DOCUMENTATION OF FUNCTIONS**
+
+*/
+
 #pragma once
 
 #include "include/Common.h"
@@ -9,33 +20,39 @@
 
 namespace Moon::Object {
 
+	/*
+		The Script class is a Moon Engine game object whose purpose is
+		to contain a representation of Lua code and to communicate to the 
+		LuaHandler class to execute the contained code.
+	*/
 	class Script : public Object {
 
-	public:
-		Script();
-		virtual ~Script() noexcept;
+		public:
+			Script();
+			virtual ~Script() noexcept;
 
-		//Member Getters
-		bool IsLoaded() const;
-		std::string GetThreadId() const;
+			//Member Getters
+			bool IsLoaded() const;
+			std::string GetThreadId() const;
 
-		//Member Setters
+			//Methods
+			void LoadFromFile(std::string filePath);
+			void LoadFromString(std::string& code);
+			void Execute();
 
-
-		//Methods
-		void LoadFromFile(std::string filePath);
-		void LoadFromString(std::string& code);
-		void Execute();
-
-	protected:
-		//Members
-		bool _isLoaded;
-		ContentId _scriptContentId;
-		std::string _threadId;
+		protected:
+			//Members
+			bool _isLoaded;
+			ContentId _scriptContentId;
+			std::string _threadId;
 
 	};
 
 }
+
+/*
+	Utility functions for things regarding Script objects in Moon Engine.
+*/
 
 namespace Moon::Util {
 

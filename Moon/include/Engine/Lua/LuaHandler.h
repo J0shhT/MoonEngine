@@ -2,7 +2,7 @@
 
 	Moon Engine - /Engine/Lua/LuaHandler.h
 
-	Updated: April 3rd, 2018
+	Updated: April 4th, 2018
 	Contributers: @J0shhT
 
 	**SEE SOURCE (.cpp) FILE FOR DOCUMENTATION OF FUNCTIONS**
@@ -110,5 +110,6 @@ namespace Moon::Util {
 
 	int GetLineNumber(lua_State*);
 	std::string GetStackTraceback(lua_State*);
+	void DumpStack(lua_State*);
 
 }

@@ -40,6 +40,7 @@ namespace Moon {
 			glm::mat4 GetProjectionMatrix() const;
 			glm::mat4 GetCameraMatrix() const;
 			bool IsWireframe() const;
+			double GetFrameDelta() const;
 
 			//Member Setters
 			void SetShaderProgram(GLuint);
