@@ -2,7 +2,7 @@
 
 	Moon Engine - /Engine/Lua/Vector2Bridge.cpp
 
-	Updated: April 8th, 2018
+	Updated: April 9th, 2018
 	Contributers: @J0shhT
 
 	**SEE HEADER (.h) FILE FOR DOCUMENTATION OF INTERFACES**
@@ -431,9 +431,7 @@ int Lua::Vector2Bridge::__tostring(lua_State* state)
 	Moon::Physics::Vector2* vec = Lua::Vector2Bridge::Get(state, 1);
 	if (vec != nullptr)
 	{
-		std::ostringstream vecAsString;
-		vecAsString << "(" << std::to_string(vec->GetX()) << ", " << std::to_string(vec->GetY()) << ")";
-		lua_pushstring(state, vecAsString.str().c_str());
+		lua_pushstring(state, vec->ToString().c_str());
 		return 1;
 	}
 	return 0;

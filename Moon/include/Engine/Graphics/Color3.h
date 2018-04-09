@@ -35,7 +35,6 @@ namespace Moon::Graphics
 			float GetRed() const;
 			float GetGreen() const;
 			float GetBlue() const;
-			float GetMagnitude() const;
 			std::string ToString() const;
 
 			//Setters

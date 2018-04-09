@@ -36,7 +36,7 @@ namespace Moon::Lua {
 		//Library Functions
 		int constructor(lua_State*);
 
-		//Type Metamethods
+		//Metamethods
 		int __index(lua_State*);
 		int __newindex(lua_State*);
 		int __add(lua_State*);
@@ -49,17 +49,17 @@ namespace Moon::Lua {
 		int __le(lua_State*);
 		int __tostring(lua_State*);
 
-		//Type Methods
+		//Methods
 		///None
 
-		//Type Getters
+		//Getters
 		int getX(lua_State*);
 		int getY(lua_State*);
 		int getMagnitude(lua_State*);
 		int getArea(lua_State*);
 		int getAngle(lua_State*);
 
-		//Type Setters
+		//Setters
 		///None
 
 	}

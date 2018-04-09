@@ -16,6 +16,7 @@ print("Current line number:", debug.line())
 print(debug.traceback())
 
 print("Vector2:", Vector2.new(5, 5))
+print("Color3:", Color3.fromRGB(255, 255, 255))
 
 warn("This is a warning!")
 error("This is an error!")

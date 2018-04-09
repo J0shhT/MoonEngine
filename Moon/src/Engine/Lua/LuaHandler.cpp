@@ -2,7 +2,7 @@
 
 	Moon Engine - /Engine/Lua/LuaHandler.cpp
 
-	Updated: April 5th, 2018
+	Updated: April 9th, 2018
 	Contributers: @J0shhT
 
 	**SEE HEADER (.h) FILE FOR DOCUMENTATION OF INTERFACES**
@@ -21,6 +21,7 @@
 #include "include/Engine/Lua/MoonTimeLibrary.h"
 
 #include "include/Engine/Lua/Vector2Bridge.h"
+#include "include/Engine/Lua/Color3Bridge.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/functional/hash.hpp>
@@ -274,12 +275,14 @@ lua_State* LuaHandler::_createLuaState() const
 
 	///Load Moon Engine Lua Types
 	Lua::Vector2Bridge::RegisterType(state);
+	Lua::Color3Bridge::RegisterType(state);
 
 	///Load Moon Engine Lua Libraries
 	Lua::MoonBaseExtension::OpenLibrary(state);
 	Lua::MoonDebugLibrary::OpenLibrary(state);
 	Lua::MoonTimeLibrary::OpenLibrary(state);
 	Lua::Vector2Bridge::OpenLibrary(state);
+	Lua::Color3Bridge::OpenLibrary(state);
 
 	///Create new globals table
 	lua_newtable(state);
