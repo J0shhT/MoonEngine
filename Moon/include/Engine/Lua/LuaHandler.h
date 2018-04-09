@@ -57,6 +57,8 @@ namespace Moon {
 			std::string id;
 		};
 
+		int ReadOnlyProperty(lua_State*);
+
 	}
 
 	/*

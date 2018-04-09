@@ -20,6 +20,8 @@
 #include "include/Engine/Lua/MoonDebugLibrary.h"
 #include "include/Engine/Lua/MoonTimeLibrary.h"
 
+#include "include/Engine/Lua/Vector2Bridge.h"
+
 #include <boost/lexical_cast.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -27,6 +29,13 @@
 #include <boost/uuid/random_generator.hpp>
 
 using namespace Moon;
+
+
+int Lua::ReadOnlyProperty(lua_State* state)
+{
+	return luaL_error(state, "This property is read-only");
+}
+
 
 //Constructor
 LuaHandler::LuaHandler()
@@ -243,23 +252,17 @@ lua_State* LuaHandler::_createLuaState() const
 	luaopen_base(state);
 	lua_pop(state, 1);
 	luaopen_coroutine(state);
-	lua_pop(state, 1);
+	lua_setglobal(state, "coroutine");
 	luaopen_table(state);
-	lua_pop(state, 1);
+	lua_setglobal(state, "table");
 	luaopen_string(state);
-	lua_pop(state, 1);
+	lua_setglobal(state, "string");
 	luaopen_utf8(state);
-	lua_pop(state, 1);
+	lua_setglobal(state, "utf8");
 	luaopen_bit32(state);
-	lua_pop(state, 1);
+	lua_setglobal(state, "bit32");
 	luaopen_math(state);
-	lua_pop(state, 1);
-
-	///These libraries are dangerous and ruin sandbox, do not load them
-	//luaopen_io(state);
-	//luaopen_os(state);
-	//luaopen_debug(state);
-	//luaopen_package(state);
+	lua_setglobal(state, "math");
 
 	///Remove dangerous base library functions
 	lua_pushnil(state);
@@ -269,10 +272,14 @@ lua_State* LuaHandler::_createLuaState() const
 	lua_pushnil(state);
 	lua_setglobal(state, "loadfile");
 
-	///Load Moon Engine Lua API
+	///Load Moon Engine Lua Types
+	Lua::Vector2Bridge::RegisterType(state);
+
+	///Load Moon Engine Lua Libraries
 	Lua::MoonBaseExtension::OpenLibrary(state);
 	Lua::MoonDebugLibrary::OpenLibrary(state);
 	Lua::MoonTimeLibrary::OpenLibrary(state);
+	Lua::Vector2Bridge::OpenLibrary(state);
 
 	///Create new globals table
 	lua_newtable(state);
